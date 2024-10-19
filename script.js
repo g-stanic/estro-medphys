@@ -10,6 +10,15 @@ const projects = [
         url: "https://github.com/openai/whisper"
     },
     {
+        name: "TensorFlow",
+        owner: "tensorflow",
+        repo: "tensorflow",
+        description: "An open-source machine learning framework for everyone",
+        language: "C++",
+        stars: 166000,
+        url: "https://github.com/tensorflow/tensorflow"
+    },
+    {
         name: "React",
         owner: "facebook",
         repo: "react",
