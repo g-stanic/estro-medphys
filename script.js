@@ -27,6 +27,15 @@ const projects = [
         stars: 190000,
         url: "https://github.com/facebook/react"
     },
+    {
+        name: "LLaMA",
+        owner: "meta",
+        repo: "llama",
+        description: "Large Language Model Meta AI",
+        language: "Python",
+        stars: 21000,
+        url: "https://github.com/meta/llama"
+    }
     // Add more projects here...
 ];
 

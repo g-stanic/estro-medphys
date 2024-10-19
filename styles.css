@@ -16,9 +16,11 @@ main {
     padding: 2rem;
 }
 
+/* Search bar */
 .search-container {
     margin-bottom: 600px;
     margin: 2rem auto;
+    padding: 1rem;
     position: relative;
 }
 
@@ -44,6 +46,8 @@ main {
     font-size: 20px;
     color: #333;
 }
+
+/* Project cards */
 .project-card {
     border: 1px solid #ddd;
     border-radius: 5px;
