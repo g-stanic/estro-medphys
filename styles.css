@@ -1,32 +1,71 @@
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-header {
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+/* Layout */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Header styles */
+.header {
     background-color: #333;
     color: #fff;
+    padding: 1rem 0;
+}
+
+.header__title {
     text-align: center;
-    padding: 1rem;
 }
 
-main {
-    padding: 2rem;
+/* Main content styles */
+.main {
+    padding: 2rem 0;
 }
 
+/* Projects container */
+.projects {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+/* Project card styles */
 .project-card {
+    flex-basis: calc(33.33% - 1rem);
+    margin-bottom: 1.5rem;
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 1rem;
-    margin-bottom: 1rem;
 }
 
-.project-card h2 {
-    margin-top: 0;
-}
-
-.project-card p {
+.project-card__title {
     margin-bottom: 0.5rem;
+}
+
+.project-card__description {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .project-card {
+        flex-basis: calc(50% - 1rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .project-card {
+        flex-basis: 100%;
+    }
 }
