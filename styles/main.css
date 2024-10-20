@@ -43,6 +43,38 @@ main {
     padding: 20px;
     border-radius: 5px;
     text-align: center;
+    width: 300px;
+}
+
+.popup h3 {
+    margin-top: 0;
+}
+
+.popup input {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    box-sizing: border-box;
+}
+
+#submitRepo {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+}
+
+#submitRepo:hover {
+    background-color: #45a049;
+}
+
+#repoStatus {
+    clear: both;
+    margin-top: 20px;
+    font-weight: bold;
 }
 
 .close-btn {
