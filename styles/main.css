@@ -8,3 +8,17 @@ body {
 main {
     padding: 2rem;
 }
+
+#addProjectButton {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+#addProjectButton:hover {
+    background-color: #45a049;
+}
