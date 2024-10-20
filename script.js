@@ -55,10 +55,37 @@ function createProjectCard(project) {
 
 function displayProjects() {
     const projectsContainer = document.getElementById('projects-container');
+    projectsContainer.innerHTML = ''; // Clear existing content
     projects.forEach(project => {
         const projectCard = createProjectCard(project);
         projectsContainer.appendChild(projectCard);
     });
+
+    // Add "Add Project" button
+    const addButton = document.createElement('button');
+    addButton.textContent = 'Add Project';
+    addButton.onclick = authenticateWithGitHub;
+    projectsContainer.appendChild(addButton);
+}
+
+// Add these new functions and variables
+
+const CLIENT_ID = 'Ov23li90C8HHNhrfSWVH';
+const REDIRECT_URI = 'https://g-stanic.github.io/estro-medphys/callback.html';
+
+function authenticateWithGitHub() {
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=read:user`;
+    window.location.href = authUrl;
+}
+
+function handleAuthentication() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+
+    if (code) {
+        // User has been authenticated
+        showProjectForm();
+    }
 }
 
 // Call this function when the page loads
