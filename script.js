@@ -105,8 +105,16 @@ function handleAuthentication() {
 
     if (code) {
         // User has been authenticated
+        localStorage.setItem('isAuthenticated', true); // Set authentication status
         document.getElementById('loginButton').style.display = 'none'; // Hide the login button
         showProjectForm(); // Assuming this function exists to show the project form
+    } else {
+        // Check if the user is already authenticated
+        const isAuthenticated = localStorage.getItem('isAuthenticated'); // Check local storage
+        if (isAuthenticated) {
+            document.getElementById('loginButton').style.display = 'none'; // Hide the login button
+            showProjectForm(); // Show the project form if already authenticated
+        }
     }
 }
 
