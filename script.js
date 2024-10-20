@@ -60,12 +60,32 @@ function displayProjects() {
         const projectCard = createProjectCard(project);
         projectsContainer.appendChild(projectCard);
     });
+}
 
-    // Add "Add Project" button
-    const addButton = document.createElement('button');
-    addButton.textContent = 'Add Project';
-    addButton.onclick = authenticateWithGitHub;
-    projectsContainer.appendChild(addButton);
+function createHeader() {
+    const header = document.createElement('header');
+    header.style.cssText = `
+        position: fixed;
+        top: 0;
+        right: 0;
+        padding: 10px;
+        z-index: 1000;
+    `;
+
+    const loginButton = document.createElement('button');
+    loginButton.textContent = 'Login with GitHub';
+    loginButton.onclick = authenticateWithGitHub;
+    loginButton.style.cssText = `
+        padding: 8px 16px;
+        background-color: #24292e;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    `;
+
+    header.appendChild(loginButton);
+    document.body.insertBefore(header, document.body.firstChild);
 }
 
 // Add these new functions and variables
@@ -89,4 +109,8 @@ function handleAuthentication() {
 }
 
 // Call this function when the page loads
-displayProjects();
+window.onload = function() {
+    createHeader();
+    displayProjects();
+    handleAuthentication();
+};
