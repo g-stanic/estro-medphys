@@ -70,10 +70,12 @@ function createHeader() {
         right: 0;
         padding: 10px;
         z-index: 1000;
+        display: flex;
+        justify-content: flex-end;
     `;
 
     const loginButton = document.createElement('button');
-    loginButton.id = 'loginButton'; // Add an ID for easy access
+    loginButton.id = 'loginButton';
     loginButton.textContent = 'Login with GitHub';
     loginButton.onclick = authenticateWithGitHub;
     loginButton.style.cssText = `
