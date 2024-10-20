@@ -110,6 +110,8 @@ function handleAuthentication() {
     }
 }
 
+// Adding new project form
+
 // Call this function when the page loads
 window.onload = function() {
     createHeader();
