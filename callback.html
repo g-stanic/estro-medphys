@@ -3,12 +3,15 @@
 <head>
     <title>Authentication Successful</title>
     <script>
-        window.opener.postMessage('authenticated', '*');
-        window.close();
+        // Wait for 3 seconds before closing the window
+        setTimeout(function() {
+            window.opener.postMessage('authenticated', '*');
+            window.close();
+        }, 3000);
     </script>
 </head>
 <body>
     <h1>Authentication Successful</h1>
-    <p>You can close this window now.</p>
+    <p>This window will close automatically in 3 seconds.</p>
 </body>
 </html>
