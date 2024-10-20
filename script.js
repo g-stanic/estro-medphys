@@ -73,6 +73,7 @@ function createHeader() {
     `;
 
     const loginButton = document.createElement('button');
+    loginButton.id = 'loginButton'; // Add an ID for easy access
     loginButton.textContent = 'Login with GitHub';
     loginButton.onclick = authenticateWithGitHub;
     loginButton.style.cssText = `
@@ -104,7 +105,8 @@ function handleAuthentication() {
 
     if (code) {
         // User has been authenticated
-        showProjectForm();
+        document.getElementById('loginButton').style.display = 'none'; // Hide the login button
+        showProjectForm(); // Assuming this function exists to show the project form
     }
 }
 
