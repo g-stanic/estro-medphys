@@ -56,6 +56,11 @@ function createProjectCard(project) {
 function displayProjects() {
     const projectsContainer = document.getElementById('projects-container');
     projectsContainer.innerHTML = ''; // Clear existing content
+    
+    // Add the "Add new project" button
+    const addProjectButton = createAddProjectButton();
+    projectsContainer.appendChild(addProjectButton);
+    
     projects.forEach(project => {
         const projectCard = createProjectCard(project);
         projectsContainer.appendChild(projectCard);
@@ -110,7 +115,27 @@ function handleAuthentication() {
     }
 }
 
-// Adding new project form
+function createAddProjectButton() {
+    const button = document.createElement('button');
+    button.textContent = 'Add new project';
+    button.id = 'addProjectButton';
+    button.style.cssText = `
+        background-color: #2ecc71;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 20px auto;
+        display: block;
+    `;
+    button.onclick = () => {
+        // TODO: Implement the logic to add a new project
+        console.log('Add new project button clicked');
+    };
+    return button;
+}
 
 // Call this function when the page loads
 window.onload = function() {
