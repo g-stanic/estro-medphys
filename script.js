@@ -105,12 +105,33 @@ function handleAuthentication() {
     }
 }
 
+function createOverlay() {
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    overlay.innerHTML = `
+        <div class="popup">
+            <span class="close-btn">&times;</span>
+            <p>Website development in progress. Thank you for understanding.</p>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const closeBtn = overlay.querySelector('.close-btn');
+    closeBtn.addEventListener('click', () => {
+        overlay.style.display = 'none';
+    });
+
+    return overlay;
+}
+
+function showOverlay() {
+    const overlay = document.querySelector('.overlay') || createOverlay();
+    overlay.style.display = 'block';
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const addProjectButton = document.getElementById('addProjectButton');
-    addProjectButton.addEventListener('click', function() {
-        // Add your logic here for what should happen when the button is clicked
-        console.log('Add Project button clicked');
-    });
+    addProjectButton.addEventListener('click', showOverlay);
 });
 
 // Call this function when the page loads
