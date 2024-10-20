@@ -62,18 +62,9 @@ function displayProjects() {
     });
 }
 
-function createHeader() {
-    const header = document.createElement('header');
-    header.style.cssText = `
-        position: fixed;
-        top: 0;
-        right: 0;
-        padding: 10px;
-        z-index: 1000;
-        display: flex;
-        justify-content: flex-end;
-    `;
-
+function addLoginButton() {
+    const header = document.querySelector('header');
+    
     const loginButton = document.createElement('button');
     loginButton.id = 'loginButton';
     loginButton.textContent = 'Login with GitHub';
@@ -85,10 +76,12 @@ function createHeader() {
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        position: absolute;
+        top: 10px;
+        right: 10px;
     `;
 
     header.appendChild(loginButton);
-    document.body.insertBefore(header, document.body.firstChild);
 }
 
 // Add these new functions and variables
@@ -122,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Call this function when the page loads
 window.onload = function() {
-    createHeader();
+    addLoginButton();
     displayProjects();
     handleAuthentication();
 };
