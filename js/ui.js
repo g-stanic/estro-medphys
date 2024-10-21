@@ -1,3 +1,6 @@
+import { authenticateWithGitHub } from './auth.js';
+import { checkRepo } from './api.js';
+
 export function addLoginButton() {
     const header = document.querySelector('header');
     
