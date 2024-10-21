@@ -1,6 +1,6 @@
 import { projects, createProjectCard, displayProjects } from './proj.js';
 import { addLoginButton, createOverlay, showOverlay } from './ui.js';
-import { handleAuthentication } from './auth.js';
+import { handleAuthentication, handleAuthCode } from './auth.js';
 import { checkRepo } from './api.js';
 
 function initializeApp() {
@@ -21,8 +21,7 @@ function initializeApp() {
 document.addEventListener('DOMContentLoaded', initializeApp);
 
 window.addEventListener('message', function(event) {
-    if (event.data === 'authenticated') {
-        console.log('Authentication successful');
-        handleAuthentication();
+    if (event.data.type === 'github-auth') {
+        handleAuthCode(event.data.code);
     }
 });
