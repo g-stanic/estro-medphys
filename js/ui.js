@@ -30,8 +30,8 @@ export function createOverlay() {
         <div class="popup">
             <span class="close-btn">&times;</span>
             <h3>Add GitHub Repository</h3>
-            <input type="text" id="usernameInput" placeholder="GitHub Username">
-            <input type="text" id="repoInput" placeholder="Repository Name">
+            <input type="text" id="usernameInput" placeholder="Your GitHub Username">
+            <input type="text" id="repoInput" placeholder="Full repository name (e.g. username/repo)">
             <button id="submitRepo">Add Project</button>
             <p id="repoStatus"></p>
         </div>

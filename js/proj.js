@@ -94,6 +94,12 @@ export async function addNewProject() {
 
     try {
         const projectDetails = await fetchRepoDetails(username, repo);
+
+        if (!projectDetails.isContributor) {
+            repoStatus.textContent = "Only contributors can add projects for this repository.";
+            return;
+        }
+
         addProject(projectDetails);
         repoStatus.textContent = "Project added successfully!";
         usernameInput.value = '';
@@ -102,6 +108,6 @@ export async function addNewProject() {
             document.querySelector('.overlay').style.display = 'none';
         }, 2000);
     } catch (error) {
-        repoStatus.textContent = "Error adding project. Please check the repository details.";
+        repoStatus.textContent = "Error: " + error.message;
     }
 }
