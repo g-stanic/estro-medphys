@@ -57,6 +57,7 @@ export function displayProjects() {
     const projectsContainer = document.getElementById('projects-container');
     projectsContainer.innerHTML = ''; // Clear existing content
     projects.forEach(project => {
+        console.log(project);
         const projectCard = createProjectCard(project);
         projectsContainer.appendChild(projectCard);
     });
