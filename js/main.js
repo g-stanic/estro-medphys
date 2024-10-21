@@ -1,6 +1,6 @@
 import { projects, createProjectCard, displayProjects } from './proj.js';
 import { addLoginButton, createOverlay, showOverlay } from './ui.js';
-import { handleAuthentication, handleAuthCode } from './auth.js';
+import { handleAuthCode } from './auth.js';
 import { checkRepo } from './api.js';
 
 function initializeApp() {
