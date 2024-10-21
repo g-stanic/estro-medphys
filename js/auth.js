@@ -18,8 +18,19 @@ export function handleAuthentication() {
 
     if (code) {
         // User has been authenticated
-        document.getElementById('loginButton').style.display = 'none'; // Hide the login button
+        const loginButton = document.getElementById('loginButton');
+        if (loginButton) {
+            loginButton.style.display = 'none'; // Hide the login button
+        } else {
+            console.warn('Login button not found');
+        }
         // You might want to store the authentication state or token here
         console.log('User authenticated successfully');
+        console.log('Authentication code:', code);
+    } else {
+        console.log('No authentication code found in URL');
     }
+
+    // Return a value to make testing easier
+    return { authenticated: !!code, code: code };
 }
