@@ -101,7 +101,6 @@ function handleAuthentication() {
     if (code) {
         // User has been authenticated
         document.getElementById('loginButton').style.display = 'none'; // Hide the login button
-        showProjectForm(); // Assuming this function exists to show the project form
     }
 }
 
