@@ -1,9 +1,10 @@
-import { projects, createProjectCard, displayProjects } from './proj.js';
+import { projects, createProjectCard, displayProjects, loadProjects } from './proj.js';
 import { addLoginButton, createOverlay, showOverlay } from './ui.js';
 import { handleAuthCode } from './auth.js';
-import { checkRepo } from './api.js';
+import { addNewProject } from './proj.js';
 
 function initializeApp() {
+    loadProjects();
     addLoginButton();
     displayProjects();
 
@@ -13,7 +14,7 @@ function initializeApp() {
     // Add event listener for repo submission
     document.addEventListener('click', function(event) {
         if (event.target && event.target.id === 'submitRepo') {
-            checkRepo();
+            addNewProject();
         }
     });
 }

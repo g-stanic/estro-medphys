@@ -1,5 +1,7 @@
+import { fetchRepoDetails } from './api.js';
+
 // List of projects to display
-export const projects = [
+export let projects = [
     {
         name: "Whisper",
         owner: "openai",
@@ -60,4 +62,46 @@ export function displayProjects() {
         const projectCard = createProjectCard(project);
         projectsContainer.appendChild(projectCard);
     });
+}
+
+export function addProject(newProject) {
+    projects.push(newProject);
+    saveProjects();
+    displayProjects();
+}
+
+export function saveProjects() {
+    localStorage.setItem('customProjects', JSON.stringify(projects.slice(4))); // Save only custom projects
+}
+
+export function loadProjects() {
+    const customProjects = JSON.parse(localStorage.getItem('customProjects')) || [];
+    projects = [...projects.slice(0, 4), ...customProjects]; // Combine default and custom projects
+}
+
+export async function addNewProject() {
+    const usernameInput = document.getElementById('usernameInput');
+    const repoInput = document.getElementById('repoInput');
+    const repoStatus = document.getElementById('repoStatus');
+
+    const username = usernameInput.value.trim();
+    const repo = repoInput.value.trim();
+
+    if (!username || !repo) {
+        repoStatus.textContent = "Please enter both username and repository name.";
+        return;
+    }
+
+    try {
+        const projectDetails = await fetchRepoDetails(username, repo);
+        addProject(projectDetails);
+        repoStatus.textContent = "Project added successfully!";
+        usernameInput.value = '';
+        repoInput.value = '';
+        setTimeout(() => {
+            document.querySelector('.overlay').style.display = 'none';
+        }, 2000);
+    } catch (error) {
+        repoStatus.textContent = "Error adding project. Please check the repository details.";
+    }
 }

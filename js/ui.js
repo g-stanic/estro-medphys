@@ -30,8 +30,9 @@ export function createOverlay() {
         <div class="popup">
             <span class="close-btn">&times;</span>
             <h3>Add GitHub Repository</h3>
-            <input type="text" id="repoInput" placeholder="username/repository">
-            <button id="submitRepo">OK</button>
+            <input type="text" id="usernameInput" placeholder="GitHub Username">
+            <input type="text" id="repoInput" placeholder="Repository Name">
+            <button id="submitRepo">Add Project</button>
             <p id="repoStatus"></p>
         </div>
     `;
@@ -43,7 +44,7 @@ export function createOverlay() {
     });
 
     const submitBtn = overlay.querySelector('#submitRepo');
-    submitBtn.addEventListener('click', checkRepo);
+    submitBtn.addEventListener('click', addNewProject);
 
     return overlay;
 }
