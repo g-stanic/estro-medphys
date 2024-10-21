@@ -5,7 +5,7 @@ import { checkRepo } from './api.js';
 
 function initializeApp() {
     addLoginButton();
-    handleAuthentication();
+    displayProjects();
 
     const addProjectButton = document.getElementById('addProjectButton');
     addProjectButton.addEventListener('click', showOverlay);
@@ -16,8 +16,13 @@ function initializeApp() {
             checkRepo();
         }
     });
-
-    setTimeout(displayProjects, 100);
 }
 
 document.addEventListener('DOMContentLoaded', initializeApp);
+
+window.addEventListener('message', function(event) {
+    if (event.data === 'authenticated') {
+        console.log('Authentication successful');
+        handleAuthentication();
+    }
+});
