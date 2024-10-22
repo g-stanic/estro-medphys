@@ -100,6 +100,9 @@ export function showOverlay() {
     }
     overlay.style.display = 'block';
 
+    const statusMessage = document.getElementById('addProjectStatus');
+    statusMessage.textContent = ''; // Clear any previous status message
+
     // Ensure event listeners are attached every time
     const closeBtn = overlay.querySelector('.close-btn');
     closeBtn.addEventListener('click', () => {
@@ -107,8 +110,17 @@ export function showOverlay() {
     });
 
     const submitBtn = overlay.querySelector('#submitRepo');
-    submitBtn.removeEventListener('click', addNewProject); // Remove existing listener to avoid duplicates
-    submitBtn.addEventListener('click', addNewProject);
+    submitBtn.removeEventListener('click', addNewProject);
+    submitBtn.addEventListener('click', () => {
+        addNewProject().then(result => {
+            if (result && result.success) {
+                statusMessage.textContent = 'Project added successfully!';
+                overlay.style.display = 'none';
+            } else if (result && result.error) {
+                statusMessage.textContent = result.error;
+            }
+        });
+    });
 
     // Re-attach other event listeners as needed
     const githubUsernameInput = overlay.querySelector('#githubUsername');
