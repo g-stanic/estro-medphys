@@ -90,19 +90,18 @@ export async function addNewProject() {
     const repoStatus = document.getElementById('repoStatus');
 
     if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
-        repoStatus.textContent = "Please fill in all required fields.";
-        return;
+        return { success: false, error: "Please fill in all required fields." };
     }
 
-    const urlParts = projectUrl.split('/');
+    try {
+        const urlParts = projectUrl.split('/');
     const repoOwner = urlParts[urlParts.length - 2];
     const repoName = urlParts[urlParts.length - 1];
     const repoDetails = await fetchRepoDetails(githubUsername, repoName);
 
-    if (!repoDetails.isContributor) {
-        repoStatus.textContent = "Only contributors to the repository can add the project.";
-        return;
-    }
+        if (!repoDetails.isContributor) {
+            return { success: false, error: "Only contributors to the repository can add the project." };
+        }
 
     try {
         let logoUrl = '';
@@ -123,10 +122,9 @@ export async function addNewProject() {
         };
 
         addProject(newProject);
-        repoStatus.textContent = "Project added successfully!";
-        document.querySelector('.overlay').style.display = 'none';
+        return { success: true };
     } catch (error) {
-        repoStatus.textContent = "Error: " + error.message;
+        return { success: false, error: "Error: " + error.message };
     }
 }
 

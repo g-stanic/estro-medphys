@@ -9,6 +9,18 @@ main {
     padding: 2rem;
 }
 
+.add-project-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.status-message {
+    color: red;
+    margin-right: 20px;
+    flex-grow: 1;
+}
+
 #addProjectButton {
     padding: 10px 20px;
     background-color: #4CAF50;
@@ -17,6 +29,7 @@ main {
     border-radius: 4px;
     cursor: pointer;
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 #addProjectButton:hover {
