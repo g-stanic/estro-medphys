@@ -40,31 +40,45 @@ main {
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: white;
-    padding: 20px;
+    padding: 30px;
     border-radius: 5px;
-    text-align: center;
-    width: 300px;
+    width: 80%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    text-align: left;
 }
 
-.popup h3 {
+.popup h2, .popup h3 {
     margin-top: 0;
+    margin-bottom: 15px;
 }
 
-.popup input {
+.popup input, .popup textarea, .popup select {
     width: 100%;
     padding: 8px;
     margin: 10px 0;
     box-sizing: border-box;
 }
 
+.popup textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.popup select[multiple] {
+    height: 120px;
+}
+
 #submitRepo {
-    padding: 8px 16px;
+    padding: 10px 20px;
     background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     float: right;
+    margin-top: 20px;
 }
 
 #submitRepo:hover {
@@ -80,7 +94,7 @@ main {
 .close-btn {
     position: absolute;
     top: 10px;
-    right: 10px;
+    right: 15px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 24px;
 }
