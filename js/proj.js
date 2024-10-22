@@ -46,10 +46,8 @@ export function createProjectCard(project) {
     card.className = 'project-card';
     card.innerHTML = `
         <h2>${project.name}</h2>
-        <p>${project.description}</p>
-        <p>Owner: ${project.owner}</p>
-        <p>Stars: ${project.stars}</p>
-        <p>Language: ${project.language}</p>
+        <p>${project.abbreviation}</p>
+        ${project.logo ? `<img src="${project.logo}" alt="${project.name} logo" class="project-logo">` : ''}
         <a href="${project.url}" target="_blank">View on GitHub</a>
     `;
     return card;
@@ -80,34 +78,55 @@ export function loadProjects() {
 }
 
 export async function addNewProject() {
-    const usernameInput = document.getElementById('usernameInput');
-    const repoInput = document.getElementById('repoInput');
+    const projectName = document.getElementById('projectName').value.trim();
+    const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
+    const projectDescription = document.getElementById('projectDescription').value.trim();
+    const projectUrl = document.getElementById('projectUrl').value.trim();
+    const projectLanguage = document.getElementById('projectLanguage').value.trim();
+    const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
+    const githubUsername = document.getElementById('githubUsername').value.trim();
+    const orcidId = document.getElementById('orcidId').value.trim();
+    const projectLogo = document.getElementById('projectLogo').files[0];
     const repoStatus = document.getElementById('repoStatus');
 
-    const username = usernameInput.value.trim();
-    const repo = repoInput.value.trim();
-
-    if (!username || !repo) {
-        repoStatus.textContent = "Please enter both username and repository name.";
+    if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
+        repoStatus.textContent = "Please fill in all required fields.";
         return;
     }
 
     try {
-        const projectDetails = await fetchRepoDetails(username, repo);
-
-        if (!projectDetails.isContributor) {
-            repoStatus.textContent = "Only contributors can add projects for this repository.";
-            return;
+        let logoUrl = '';
+        if (projectLogo) {
+            logoUrl = await uploadLogo(projectLogo);
         }
 
-        addProject(projectDetails);
+        const newProject = {
+            name: projectName,
+            abbreviation: projectAbbreviation,
+            description: projectDescription,
+            url: projectUrl,
+            language: projectLanguage,
+            keywords: projectKeywords,
+            owner: githubUsername,
+            orcidId: orcidId,
+            logo: logoUrl
+        };
+
+        addProject(newProject);
         repoStatus.textContent = "Project added successfully!";
-        usernameInput.value = '';
-        repoInput.value = '';
-        setTimeout(() => {
-            document.querySelector('.overlay').style.display = 'none';
-        }, 2000);
+        document.querySelector('.overlay').style.display = 'none';
     } catch (error) {
         repoStatus.textContent = "Error: " + error.message;
     }
+}
+
+async function uploadLogo(file) {
+    // In a real application, you would upload the file to a server here
+    // For this example, we'll use a data URL
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = (e) => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+    });
 }

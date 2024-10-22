@@ -45,6 +45,10 @@ export function createOverlay() {
                 <!-- Add more options as needed -->
             </select>
             
+            <!-- New logo input field -->
+            <input type="file" id="projectLogo" accept="image/*">
+            <label for="projectLogo">Upload Project Logo</label>
+            
             <h3>Section 2: Contact Info</h3>
             <input type="text" id="githubUsername" placeholder="GitHub Username">
             <input type="text" id="orcidId" placeholder="ORCID ID (if applicable)">
