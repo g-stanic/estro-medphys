@@ -94,6 +94,13 @@ export async function addNewProject() {
         return;
     }
 
+    const repoDetails = await fetchRepoDetails(githubUsername, projectName);
+
+    if (!repoDetails.isContributor) {
+        repoStatus.textContent = "Only contributors to the repository can add the project.";
+        return;
+    }
+
     try {
         let logoUrl = '';
         if (projectLogo) {
