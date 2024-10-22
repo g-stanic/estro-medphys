@@ -94,6 +94,30 @@ async function fetchProjectLanguage(username, repo, languageInput) {
 }
 
 export function showOverlay() {
-    const overlay = document.querySelector('.overlay') || createOverlay();
+    let overlay = document.querySelector('.overlay');
+    if (!overlay) {
+        overlay = createOverlay();
+    }
     overlay.style.display = 'block';
+
+    // Ensure event listeners are attached every time
+    const closeBtn = overlay.querySelector('.close-btn');
+    closeBtn.addEventListener('click', () => {
+        overlay.style.display = 'none';
+    });
+
+    const submitBtn = overlay.querySelector('#submitRepo');
+    submitBtn.removeEventListener('click', addNewProject); // Remove existing listener to avoid duplicates
+    submitBtn.addEventListener('click', addNewProject);
+
+    // Re-attach other event listeners as needed
+    const githubUsernameInput = overlay.querySelector('#githubUsername');
+    const projectNameInput = overlay.querySelector('#projectName');
+    const projectLanguageInput = overlay.querySelector('#projectLanguage');
+
+    githubUsernameInput.addEventListener('blur', () => {
+        if (githubUsernameInput.value && projectNameInput.value) {
+            fetchProjectLanguage(githubUsernameInput.value, projectNameInput.value, projectLanguageInput);
+        }
+    });
 }
