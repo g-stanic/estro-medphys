@@ -95,13 +95,16 @@ export async function addNewProject() {
 
     try {
         const urlParts = projectUrl.split('/');
-    const repoOwner = urlParts[urlParts.length - 2];
-    const repoName = urlParts[urlParts.length - 1];
-    const repoDetails = await fetchRepoDetails(githubUsername, repoName);
+        const repoOwner = urlParts[urlParts.length - 2];
+        const repoName = urlParts[urlParts.length - 1];
+        const repoDetails = await fetchRepoDetails(githubUsername, repoName);
 
         if (!repoDetails.isContributor) {
             return { success: false, error: "Only contributors to the repository can add the project." };
         }
+    } catch (error) {
+        return { success: false, error: "Error: " + error.message };
+    }
 
     try {
         let logoUrl = '';
