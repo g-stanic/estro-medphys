@@ -1,5 +1,5 @@
-import { projects, createProjectCard, displayProjects, loadProjects } from './proj.js';
-import { addLoginButton, createOverlay, showOverlay } from './ui.js';
+import { displayProjects} from './proj.js';
+import { addLoginButton, showOverlay } from './ui.js';
 import { handleAuthCode } from './auth.js';
 import { addNewProject } from './proj.js';
 
