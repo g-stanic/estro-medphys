@@ -107,7 +107,7 @@ export function showOverlay() {
         addNewProject().then(result => {
             if (result && result.success) {
                 statusMessage.textContent = 'Project added successfully!';
-                overlay.style.display = 'none';
+                // overlay.style.display = 'none';
             } else if (result && result.error) {
                 statusMessage.textContent = result.error;
             }
