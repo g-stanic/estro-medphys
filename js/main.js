@@ -4,7 +4,7 @@ import { handleAuthCode } from './auth.js';
 import { addNewProject } from './proj.js';
 
 function initializeApp() {
-    loadProjects();
+    // loadProjects();
     addLoginButton();
     displayProjects();
 

@@ -63,18 +63,18 @@ export function displayProjects() {
 
 export function addProject(newProject) {
     projects.push(newProject);
-    saveProjects();
+    // saveProjects();
     displayProjects();
 }
 
-export function saveProjects() {
-    localStorage.setItem('customProjects', JSON.stringify(projects.slice(4))); // Save only custom projects
-}
+// export function saveProjects() {
+//     localStorage.setItem('customProjects', JSON.stringify(projects.slice(4))); // Save only custom projects
+// }
 
-export function loadProjects() {
-    const customProjects = JSON.parse(localStorage.getItem('customProjects')) || [];
-    projects = [...projects.slice(0, 4), ...customProjects]; // Combine default and custom projects
-}
+// export function loadProjects() {
+//     const customProjects = JSON.parse(localStorage.getItem('customProjects')) || [];
+//     projects = [...projects.slice(0, 4), ...customProjects]; // Combine default and custom projects
+// }
 
 export async function addNewProject() {
     const projectName = document.getElementById('projectName').value.trim();
