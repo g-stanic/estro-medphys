@@ -76,7 +76,7 @@ export function addProject(newProject) {
 //     projects = [...projects.slice(0, 4), ...customProjects]; // Combine default and custom projects
 // }
 
-export async function addNewProject() {
+export function addNewProject() {
     const projectName = document.getElementById('projectName').value.trim();
     const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
     const projectDescription = document.getElementById('projectDescription').value.trim();
@@ -95,7 +95,7 @@ export async function addNewProject() {
     try {
         const urlParts = projectUrl.split('/');
         const repoName = urlParts.slice(3).join('/')
-        const repoDetails = await fetchRepoDetails(githubUsername, repoName);
+        const repoDetails = fetchRepoDetails(githubUsername, repoName);
 
         if (!repoDetails.isContributor) {
             return { success: false, error: "Only contributors to the repository can add the project." };
@@ -107,7 +107,7 @@ export async function addNewProject() {
     try {
         let logoUrl = '';
         if (projectLogo) {
-            logoUrl = await uploadLogo(projectLogo);
+            logoUrl = uploadLogo(projectLogo);
         }
 
         const newProject = {
