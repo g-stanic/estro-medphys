@@ -38,7 +38,6 @@ export let projects = [
         stars: 21000,
         url: "https://github.com/meta/llama"
     }
-    // Add more projects here...
 ];
 
 export function createProjectCard(project) {

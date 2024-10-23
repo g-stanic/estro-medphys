@@ -103,7 +103,6 @@ export function showOverlay() {
 
     // Ensure event listeners are attached only once
     const submitBtn = overlay.querySelector('#submitRepo');
-    submitBtn.removeEventListener('click', addNewProject); // Remove any existing listener
     submitBtn.addEventListener('click', () => {
         addNewProject().then(result => {
             if (result && result.success) {
