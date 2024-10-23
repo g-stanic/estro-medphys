@@ -21,9 +21,9 @@ export async function checkRepo() {
     }
 }
 
-export async function fetchRepoDetails(username, repo) {
+export function fetchRepoDetails(username, repo) {
     try {
-        const [repoResponse, contributorsResponse] = await Promise.all([
+        const [repoResponse, contributorsResponse] = ([
             fetch(`https://api.github.com/repos/${repo}`),
             fetch(`https://api.github.com/repos/${repo}/contributors`)
         ]);
@@ -32,8 +32,8 @@ export async function fetchRepoDetails(username, repo) {
             throw new Error('Repository not found or unable to fetch contributors');
         }
 
-        const repoData = await repoResponse.json();
-        const contributorsData = await contributorsResponse.json();
+        const repoData = repoResponse.json();
+        const contributorsData = contributorsResponse.json();
 
         const isContributor = contributorsData.some(contributor => contributor.login.toLowerCase() === username.toLowerCase());
 
