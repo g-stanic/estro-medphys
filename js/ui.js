@@ -65,9 +65,6 @@ export function createOverlay() {
         overlay.style.display = 'none';
     });
 
-    const submitBtn = overlay.querySelector('#submitRepo');
-    submitBtn.addEventListener('click', addNewProject);
-
     // Add event listener to fetch project language from GitHub
     // const githubUsernameInput = overlay.querySelector('#githubUsername');
     // const projectNameInput = overlay.querySelector('#projectName');
@@ -82,17 +79,17 @@ export function createOverlay() {
     return overlay;
 }
 
-async function fetchProjectLanguage(username, repo, languageInput) {
-    try {
-        const response = await fetch(`https://api.github.com/repos/${username}/${repo}`);
-        if (response.ok) {
-            const data = await response.json();
-            languageInput.value = data.language || '';
-        }
-    } catch (error) {
-        console.error('Error fetching project language:', error);
-    }
-}
+// async function fetchProjectLanguage(username, repo, languageInput) {
+//     try {
+//         const response = await fetch(`https://api.github.com/repos/${username}/${repo}`);
+//         if (response.ok) {
+//             const data = await response.json();
+//             languageInput.value = data.language || '';
+//         }
+//     } catch (error) {
+//         console.error('Error fetching project language:', error);
+//     }
+// }
 
 export function showOverlay() {
     let overlay = document.querySelector('.overlay');
