@@ -69,15 +69,15 @@ export function createOverlay() {
     submitBtn.addEventListener('click', addNewProject);
 
     // Add event listener to fetch project language from GitHub
-    const githubUsernameInput = overlay.querySelector('#githubUsername');
-    const projectNameInput = overlay.querySelector('#projectName');
-    const projectLanguageInput = overlay.querySelector('#projectLanguage');
+    // const githubUsernameInput = overlay.querySelector('#githubUsername');
+    // const projectNameInput = overlay.querySelector('#projectName');
+    // const projectLanguageInput = overlay.querySelector('#projectLanguage');
 
-    githubUsernameInput.addEventListener('blur', () => {
-        if (githubUsernameInput.value && projectNameInput.value) {
-            fetchProjectLanguage(githubUsernameInput.value, projectNameInput.value, projectLanguageInput);
-        }
-    });
+    // githubUsernameInput.addEventListener('blur', () => {
+    //     if (githubUsernameInput.value && projectNameInput.value) {
+    //         fetchProjectLanguage(githubUsernameInput.value, projectNameInput.value, projectLanguageInput);
+    //     }
+    // });
 
     return overlay;
 }
@@ -104,14 +104,9 @@ export function showOverlay() {
     const statusMessage = document.getElementById('addProjectStatus');
     statusMessage.textContent = ''; // Clear any previous status message
 
-    // Ensure event listeners are attached every time
-    const closeBtn = overlay.querySelector('.close-btn');
-    closeBtn.addEventListener('click', () => {
-        overlay.style.display = 'none';
-    });
-
+    // Ensure event listeners are attached only once
     const submitBtn = overlay.querySelector('#submitRepo');
-    submitBtn.removeEventListener('click', addNewProject);
+    submitBtn.removeEventListener('click', addNewProject); // Remove any existing listener
     submitBtn.addEventListener('click', () => {
         addNewProject().then(result => {
             if (result && result.success) {
@@ -123,14 +118,8 @@ export function showOverlay() {
         });
     });
 
-    // Re-attach other event listeners as needed
-    const githubUsernameInput = overlay.querySelector('#githubUsername');
-    const projectNameInput = overlay.querySelector('#projectName');
-    const projectLanguageInput = overlay.querySelector('#projectLanguage');
-
-    githubUsernameInput.addEventListener('blur', () => {
-        if (githubUsernameInput.value && projectNameInput.value) {
-            fetchProjectLanguage(githubUsernameInput.value, projectNameInput.value, projectLanguageInput);
-        }
+    const closeBtn = overlay.querySelector('.close-btn');
+    closeBtn.addEventListener('click', () => {
+        overlay.style.display = 'none';
     });
 }
