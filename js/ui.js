@@ -1,4 +1,5 @@
 import { authenticateWithGitHub } from './auth.js';
+import { addNewProject } from './proj.js';
 
 export function addLoginButton() {
     const header = document.querySelector('header');
