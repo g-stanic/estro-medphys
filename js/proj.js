@@ -77,7 +77,7 @@ export function addProject(newProject) {
 // }
 
 export function addNewProject() {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         const projectName = document.getElementById('projectName').value.trim();
         const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
         const projectDescription = document.getElementById('projectDescription').value.trim();
@@ -96,7 +96,7 @@ export function addNewProject() {
         try {
             const urlParts = projectUrl.split('/');
             const repoName = urlParts.slice(3).join('/');
-            const repoDetails = fetchRepoDetails(githubUsername, repoName);
+            const repoDetails = await fetchRepoDetails(githubUsername, repoName);
 
             if (!repoDetails.isContributor) {
                 return resolve({ success: false, error: "Only contributors to the repository can add the project." });
