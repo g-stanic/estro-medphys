@@ -117,6 +117,7 @@ function handleAddNewProject() {
         const statusMessage = document.getElementById('addProjectStatus');
         if (result && result.success) {
             statusMessage.textContent = 'Project added successfully!';
+            const overlay = document.querySelector('.overlay');
             overlay.style.display = 'none';
         } else if (result && result.error) {
             statusMessage.textContent = result.error;
