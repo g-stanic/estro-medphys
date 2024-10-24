@@ -12,14 +12,13 @@ function initializeApp() {
     addProjectButton.addEventListener('click', showOverlay);
 
     // Add event listener for repo submission
-    document.addEventListener('click', function(event) {
-        if (event.target && event.target.id === 'submitRepo') {
-            addNewProject();
-        }
-    });
+    // document.addEventListener('click', function(event) {
+    //     if (event.target && event.target.id === 'submitRepo') {
+    //         addNewProject();
+    //     }
+    // });
 }
-
-document.addEventListener('DOMContentLoaded', initializeApp);
+// document.addEventListener('DOMContentLoaded', initializeApp);
 
 window.addEventListener('message', function(event) {
     if (event.data.type === 'github-auth') {
