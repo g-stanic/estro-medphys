@@ -108,7 +108,7 @@ export function addNewProject() {
         try {
             let logoUrl = '';
             if (projectLogo) {
-                logoUrl = uploadLogo(projectLogo);
+                logoUrl = await uploadLogo(projectLogo);
             }
 
             const newProject = {
