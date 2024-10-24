@@ -77,56 +77,58 @@ export function addProject(newProject) {
 // }
 
 export function addNewProject() {
-    const projectName = document.getElementById('projectName').value.trim();
-    const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
-    const projectDescription = document.getElementById('projectDescription').value.trim();
-    const projectUrl = document.getElementById('projectUrl').value.trim();
-    const projectLanguage = document.getElementById('projectLanguage').value.trim();
-    const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
-    const githubUsername = document.getElementById('githubUsername').value.trim();
-    const orcidId = document.getElementById('orcidId').value.trim();
-    const projectLogo = document.getElementById('projectLogo').files[0];
-    const repoStatus = document.getElementById('repoStatus');
+    return new Promise((resolve, reject) => {
+        const projectName = document.getElementById('projectName').value.trim();
+        const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
+        const projectDescription = document.getElementById('projectDescription').value.trim();
+        const projectUrl = document.getElementById('projectUrl').value.trim();
+        const projectLanguage = document.getElementById('projectLanguage').value.trim();
+        const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
+        const githubUsername = document.getElementById('githubUsername').value.trim();
+        const orcidId = document.getElementById('orcidId').value.trim();
+        const projectLogo = document.getElementById('projectLogo').files[0];
+        const repoStatus = document.getElementById('repoStatus');
 
-    if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
-        return { success: false, error: "Please fill in all required fields." };
-    }
-
-    try {
-        const urlParts = projectUrl.split('/');
-        const repoName = urlParts.slice(3).join('/')
-        const repoDetails = fetchRepoDetails(githubUsername, repoName);
-
-        if (!repoDetails.isContributor) {
-            return { success: false, error: "Only contributors to the repository can add the project." };
-        }
-    } catch (error) {
-        return { success: false, error: "Error: " + error.message };
-    }
-
-    try {
-        let logoUrl = '';
-        if (projectLogo) {
-            logoUrl = uploadLogo(projectLogo);
+        if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
+            return resolve({ success: false, error: "Please fill in all required fields." });
         }
 
-        const newProject = {
-            name: projectName,
-            abbreviation: projectAbbreviation,
-            description: projectDescription,
-            url: projectUrl,
-            language: projectLanguage,
-            keywords: projectKeywords,
-            owner: githubUsername,
-            orcidId: orcidId,
-            logo: logoUrl
-        };
+        try {
+            const urlParts = projectUrl.split('/');
+            const repoName = urlParts.slice(3).join('/');
+            const repoDetails = fetchRepoDetails(githubUsername, repoName);
 
-        addProject(newProject);
-        return { success: true };
-    } catch (error) {
-        return { success: false, error: "Error: " + error.message };
-    }
+            if (!repoDetails.isContributor) {
+                return resolve({ success: false, error: "Only contributors to the repository can add the project." });
+            }
+        } catch (error) {
+            return resolve({ success: false, error: "Error: " + error.message });
+        }
+
+        try {
+            let logoUrl = '';
+            if (projectLogo) {
+                logoUrl = uploadLogo(projectLogo);
+            }
+
+            const newProject = {
+                name: projectName,
+                abbreviation: projectAbbreviation,
+                description: projectDescription,
+                url: projectUrl,
+                language: projectLanguage,
+                keywords: projectKeywords,
+                owner: githubUsername,
+                orcidId: orcidId,
+                logo: logoUrl
+            };
+
+            addProject(newProject);
+            return resolve({ success: true });
+        } catch (error) {
+            return resolve({ success: false, error: "Error: " + error.message });
+        }
+    });
 }
 
 async function uploadLogo(file) {
