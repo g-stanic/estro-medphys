@@ -18,7 +18,7 @@ function initializeApp() {
     //     }
     // });
 }
-// document.addEventListener('DOMContentLoaded', initializeApp);
+document.addEventListener('DOMContentLoaded', initializeApp);
 
 window.addEventListener('message', function(event) {
     if (event.data.type === 'github-auth') {
