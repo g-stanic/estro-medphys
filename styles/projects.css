@@ -4,6 +4,9 @@
     border-radius: 5px;
     padding: 1rem;
     margin-bottom: 1rem;
+    aspect-ratio: 1 / 1; /* Make the card square */
+    display: flex;
+    flex-direction: column;
 }
 
 .project-card h2 {
