@@ -23,8 +23,8 @@ main {
 
 #addProjectButton {
     padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #FC814A;
+    color: #01172F;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -33,7 +33,7 @@ main {
 }
 
 #addProjectButton:hover {
-    background-color: #45a049;
+    background-color: #cc6639;
 }
 
 .overlay {
@@ -85,8 +85,8 @@ main {
 
 #submitRepo {
     padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #FC814A;
+    color: #01172F;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -95,7 +95,7 @@ main {
 }
 
 #submitRepo:hover {
-    background-color: #45a049;
+    background-color: #cc6639;
 }
 
 #repoStatus {

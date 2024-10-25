@@ -18,12 +18,15 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    width: 75%;
+    margin-left: auto;
 }
 
 .project-card {
     flex-basis: calc(33.33% - 1rem);
     margin-bottom: 1.5rem;
     box-sizing: border-box;
+    max-width: calc(33.33% - 1rem);
 }
 
 @media (max-width: 768px) {
