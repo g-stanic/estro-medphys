@@ -3,10 +3,14 @@ header {
     color: #e6e6e6;
     text-align: center;
     padding: 1rem;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    z-index: 1000;
 }
 
 .login-button {
