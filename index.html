@@ -8,7 +8,12 @@
     <link rel="stylesheet" href="styles/header.css">
     <link rel="stylesheet" href="styles/search.css">
     <link rel="stylesheet" href="styles/projects.css">
+    <link rel="stylesheet" href="styles/auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon/favicon-16x16.png">
+    <link rel="manifest" href="images/favicon/site.webmanifest">
 </head>
 <body>
     <header>
@@ -19,8 +24,12 @@
         <button type="submit"><i class="fas fa-search"></i></button>
     </div>
     <main>
+        <div class="add-project-container">
+            <div class="status-message" id="addProjectStatus"></div>
+            <button id="addProjectButton">Add Project</button>
+        </div>
         <div id="projects-container"></div>
     </main>
-    <script src="script.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

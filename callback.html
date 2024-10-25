@@ -3,15 +3,23 @@
 <head>
     <title>Authentication Successful</title>
     <script>
-        // Wait for 3 seconds before redirecting
-        setTimeout(function() {
-            // Redirect to the main page
-            window.location.href = 'https://g-stanic.github.io/estro-medphys/index.html'; // Change this to your main page URL
-        }, 3000);
+        function sendAuthCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            if (code && window.opener) {
+                window.opener.postMessage({ type: 'github-auth', code: code }, '*');
+                window.close();
+            } else {
+                document.body.innerHTML += '<p>Authentication failed or opener not available.</p>';
+            }
+        }
+
+        // Call sendAuthCode when the page loads
+        window.onload = sendAuthCode;
     </script>
 </head>
 <body>
     <h1>Authentication Successful</h1>
-    <p>This page will redirect automatically in 3 seconds.</p>
+    <p>This window will close automatically. If it doesn't, you can close it manually.</p>
 </body>
 </html>
