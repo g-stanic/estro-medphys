@@ -1,9 +1,7 @@
 /* Search bar */
 .search-container {
-    margin-bottom: 600px;
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
+    width: 100%;
+    max-width: 600px;
     margin: 2rem auto;
     padding: 1rem;
     position: relative;
@@ -11,23 +9,32 @@
 
 .search-container input[type="text"] {
     width: 100%;
-    padding: 10px 40px 10px 10px;
+    padding: 10px;
     font-size: 16px;
     border: 1px solid #ddd;
     border-radius: 5px;
 }
 
+/* Remove the button styles as there's no search button in the image */
 .search-container button {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
+    display: none;
+}
+
+/* Add new project button */
+.add-project-button {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    margin: 1rem auto;
+    padding: 0.5rem;
+    background-color: #2c7a7b;
+    color: white;
     border: none;
+    border-radius: 4px;
+    font-size: 16px;
     cursor: pointer;
 }
 
-.search-container button i {
-    font-size: 20px;
-    color: #333;
+.add-project-button:hover {
+    background-color: #1a4a4b;
 }
