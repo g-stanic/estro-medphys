@@ -18,8 +18,9 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    width: 75%;
-    margin-left: auto;
+    /* width: 75%;
+    margin-left: auto; */
+    width: 100%;
 }
 
 .project-card {
