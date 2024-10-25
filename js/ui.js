@@ -6,19 +6,9 @@ export function addLoginButton() {
     
     const loginButton = document.createElement('button');
     loginButton.id = 'loginButton';
+    loginButton.className = 'login-button';
     loginButton.textContent = 'Login with GitHub';
     loginButton.onclick = authenticateWithGitHub;
-    loginButton.style.cssText = `
-        padding: 8px 16px;
-        background-color: #24292e;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        position: absolute;
-        top: 10px;
-        right: 10px;
-    `;
 
     header.appendChild(loginButton);
 }
