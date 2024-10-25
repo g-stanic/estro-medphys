@@ -1,16 +1,9 @@
 header {
-    background-color: #2c567b;
-    color: #e6e6e6;
+    background-color: #333;
+    color: #fff;
     text-align: center;
     padding: 1rem;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 1000;
+    position: relative;
 }
 
 .login-button {

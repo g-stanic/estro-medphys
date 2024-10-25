@@ -1,33 +1,40 @@
 /* Project cards */
-#projects-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    max-width: 900px;
-    margin: 0 auto;
-}
-
 .project-card {
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 1rem;
     margin-bottom: 1rem;
-    aspect-ratio: 1 / 1; /* Make the card square */
-    display: flex;
-    flex-direction: column;
 }
 
-/* Remove other styles for .project-card as they're not visible in the image */
+.project-card h2 {
+    margin-top: 0;
+}
+
+.project-card p {
+    margin-bottom: 0.5rem;
+}
+
+#projects-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.project-card {
+    flex-basis: calc(33.33% - 1rem);
+    margin-bottom: 1.5rem;
+    box-sizing: border-box;
+}
 
 @media (max-width: 768px) {
-    #projects-container {
-        grid-template-columns: repeat(2, 1fr);
+    .project-card {
+        flex-basis: calc(50% - 1rem);
     }
 }
 
 @media (max-width: 480px) {
-    #projects-container {
-        grid-template-columns: 1fr;
+    .project-card {
+        flex-basis: 100%;
     }
 }
 
