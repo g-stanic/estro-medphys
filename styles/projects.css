@@ -17,7 +17,6 @@
 #projects-container {
     border: 1px solid #ddd;
     padding: 1rem;
-    margin-bottom: 1rem;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
