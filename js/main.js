@@ -8,18 +8,18 @@ async function initializeApp() {
     await displayProjects();
 
     const addProjectButton = document.getElementById('addProjectButton');
-    addProjectButton.addEventListener('click', handleAddProjectClick);
+    addProjectButton.addEventListener('click', showOverlay); // handleAddProjectClick);
 
-    // Check if the user is authenticated
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
-    if (isAuthenticated) {
-        showAddProjectButton();
-    } else {
-        hideAddProjectButton();
-    }
+    // // Check if the user is authenticated
+    // const isAuthenticated = localStorage.getItem('isAuthenticated');
+    // if (isAuthenticated) {
+    //     showAddProjectButton();
+    // } else {
+    //     hideAddProjectButton();
+    // }
 
-    // Listen for authentication state changes
-    window.addEventListener('authStateChanged', handleAuthStateChange);
+    // // Listen for authentication state changes
+    // window.addEventListener('authStateChanged', handleAuthStateChange);
 }
 
 function handleAddProjectClick() {
