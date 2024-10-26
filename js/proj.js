@@ -13,7 +13,11 @@ async function fetchProjects() {
         });
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            if (response.status === 401) {
+                throw new Error('Unauthorized: Please check your GitHub token');
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
         }
         
         const data = await response.json();
@@ -26,9 +30,13 @@ async function fetchProjects() {
         projects = JSON.parse(content);
         console.log('Projects loaded successfully:', projects);
     } catch (error) {
-        console.error('Error fetching projects:', error);
-        console.log('Response:', error.response);
+        console.error('Error fetching projects:', error.message);
+        if (error.response) {
+            console.log('Response status:', error.response.status);
+            console.log('Response headers:', error.response.headers);
+        }
         projects = []; // Set to empty array if fetch fails
+        throw error; // Re-throw the error to be handled by the calling function
     }
 }
 
@@ -45,13 +53,19 @@ export function createProjectCard(project) {
 }
 
 export async function displayProjects() {
-    await fetchProjects();
-    const projectsContainer = document.getElementById('projects-container');
-    projectsContainer.innerHTML = ''; // Clear existing content
-    projects.forEach(project => {
-        const projectCard = createProjectCard(project);
-        projectsContainer.appendChild(projectCard);
-    });
+    try {
+        await fetchProjects();
+        const projectsContainer = document.getElementById('projects-container');
+        projectsContainer.innerHTML = ''; // Clear existing content
+        projects.forEach(project => {
+            const projectCard = createProjectCard(project);
+            projectsContainer.appendChild(projectCard);
+        });
+    } catch (error) {
+        console.error('Error displaying projects:', error.message);
+        const projectsContainer = document.getElementById('projects-container');
+        projectsContainer.innerHTML = `<p>Error loading projects: ${error.message}</p>`;
+    }
 }
 
 export function addNewProject() {
