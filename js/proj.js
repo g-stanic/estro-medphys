@@ -1,10 +1,16 @@
 import { fetchRepoDetails, updateGitHubRepository } from './api.js';
+import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
 
 let projects = [];
 
 async function fetchProjects() {
     try {
-        const response = await fetch('https://api.github.com/repos/g-stanic/estro-medphys/contents/projects.json?ref=dev/projectCommit');
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/projects.json?ref=dev/projectCommit`, {
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
