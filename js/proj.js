@@ -36,9 +36,9 @@ async function fetchProjects() {
             const text = await error.response.text();
             console.log('Response text:', text);
         }
-        projects = [];
         throw error;
     }
+    return projects;
 }
 
 export function createProjectCard(project) {
@@ -55,7 +55,7 @@ export function createProjectCard(project) {
 
 export async function displayProjects() {
     try {
-        await fetchProjects();
+        projects = await fetchProjects();
         const projectsContainer = document.getElementById('projects-container');
         projectsContainer.innerHTML = ''; // Clear existing content
         projects.forEach(project => {
@@ -118,7 +118,7 @@ export function addNewProject() {
             projects.push(newProject);
 
             // Update the GitHub repository with the new project
-            await updateGitHubRepository(projects);
+            // await updateGitHubRepository(projects);
 
             return resolve({ success: true });
         } catch (error) {
