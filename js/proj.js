@@ -6,15 +6,10 @@ let projects = [];
 async function fetchProjects() {
     try {
         console.log('Fetching projects...');
-        console.log('URL:', `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/projects.json`);
+        console.log('URL:', `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/projects.json?ref=dev/projectCommit`);
         console.log('Token (first 10 chars):', GITHUB_TOKEN.substring(0, 10) + '...');
         
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/projects.json`, {
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
-        });
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/projects.json?ref=dev/projectCommit`);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
