@@ -102,5 +102,3 @@ async function getFileSHA(owner, repo, path, token) {
 
     return null;
 }
-
-export { updateGitHubRepository };
