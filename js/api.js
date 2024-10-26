@@ -1,3 +1,5 @@
+import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
+
 export async function checkRepo() {
     const repoInput = document.getElementById('repoInput');
     const repoStatus = document.getElementById('repoStatus');
@@ -54,9 +56,9 @@ export async function fetchRepoDetails(username, repo) {
 }
 
 async function updateGitHubRepository(projects) {
-  const token = 'YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'; // Replace with your GitHub Personal Access Token
-  const owner = 'YOUR_GITHUB_USERNAME'; // Replace with your GitHub username
-  const repo = 'estro-medphys-projects';
+  const token = GITHUB_TOKEN; // Replace with your GitHub Personal Access Token
+  const owner = GITHUB_USERNAME; // Replace with your GitHub username
+  const repo = GITHUB_REPO;
   const path = 'projects.json';
 
   const content = btoa(JSON.stringify(projects, null, 2));
