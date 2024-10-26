@@ -4,7 +4,7 @@ let projects = [];
 
 async function fetchProjects() {
     try {
-        const response = await fetch('https://api.github.com/repos/g-stanic/estro-medphys/contents/projects.json');
+        const response = await fetch('https://api.github.com/repos/g-stanic/estro-medphys/contents/projects.json?ref=dev/projectCommit');
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

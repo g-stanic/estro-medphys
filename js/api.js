@@ -64,7 +64,7 @@ export async function updateGitHubRepository(projects) {
     const content = btoa(JSON.stringify(projects, null, 2));
 
     try {
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=dev/projectCommit`, {
       method: 'PUT',
       headers: {
         'Authorization': `token ${token}`,
@@ -89,7 +89,7 @@ export async function updateGitHubRepository(projects) {
 }
 
 async function getFileSHA(owner, repo, path, token) {
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=dev/projectCommit`, {
         headers: {
         'Authorization': `token ${token}`,
         },
