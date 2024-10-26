@@ -60,26 +60,31 @@ export async function updateGitHubRepository(projects) {
     const owner = GITHUB_USERNAME; // Replace with your GitHub username
     const repo = GITHUB_REPO;
     const path = 'projects.json';
+    const branch = 'dev/projectCommit';
 
     const content = btoa(JSON.stringify(projects, null, 2));
 
     try {
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=dev/projectCommit`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: 'Update projects',
-        content: content,
-        sha: await getFileSHA(owner, repo, path, token),
-      }),
-    });
+        const currentFile = await getCurrentFile(owner, repo, path, branch, token);
+    
+        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Content-Type': 'application/json',
+            }, 
+            body: JSON.stringify({
+                message: 'Update projects',
+                content: content,
+                sha: currentFile ? currentFile.sha : null,
+                branch: branch
+            }),
+        });
 
-    if (!response.ok) {
-      throw new Error('Failed to update GitHub repository');
-    }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error('Failed to update GitHub repository');
+        }
 
         console.log('GitHub repository updated successfully');
     } catch (error) {
@@ -88,17 +93,25 @@ export async function updateGitHubRepository(projects) {
   }
 }
 
-async function getFileSHA(owner, repo, path, token) {
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=dev/projectCommit`, {
-        headers: {
-        'Authorization': `token ${token}`,
-        },
-    });
+async function getCurrentFile(owner, repo, path, branch, token) {
+    try {
+        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
+            headers: {
+                'Authorization': `token ${token}`,
+            },
+        });
 
-    if (response.ok) {
-        const data = await response.json();
-        return data.sha;
+        if (response.status === 404) {
+            return null;
+        }
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch current file: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching current file:', error);
+        return null;
     }
-
-    return null;
 }

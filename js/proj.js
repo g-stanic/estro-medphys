@@ -123,10 +123,11 @@ export function addNewProject() {
             projectsContainer.appendChild(newProjectCard);
 
             // Update the GitHub repository with the new project
-            // await updateGitHubRepository(projects);
+            await updateGitHubRepository(projects);
 
             return resolve({ success: true });
         } catch (error) {
+            console.error('Error adding new project:', error);
             return resolve({ success: false, error: "Error: " + error.message });
         }
     });
