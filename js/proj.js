@@ -69,68 +69,66 @@ export async function displayProjects() {
     }
 }
 
-export function addNewProject() {
-    return new Promise(async (resolve, reject) => {
-        const projectName = document.getElementById('projectName').value.trim();
-        const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
-        const projectDescription = document.getElementById('projectDescription').value.trim();
-        const projectUrl = document.getElementById('projectUrl').value.trim();
-        const projectLanguage = document.getElementById('projectLanguage').value.trim();
-        const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
-        const githubUsername = document.getElementById('githubUsername').value.trim();
-        const orcidId = document.getElementById('orcidId').value.trim();
-        const projectLogo = document.getElementById('projectLogo').files[0];
+export async function addNewProject() {
+    const projectName = document.getElementById('projectName').value.trim();
+    const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
+    const projectDescription = document.getElementById('projectDescription').value.trim();
+    const projectUrl = document.getElementById('projectUrl').value.trim();
+    const projectLanguage = document.getElementById('projectLanguage').value.trim();
+    const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
+    const githubUsername = document.getElementById('githubUsername').value.trim();
+    const orcidId = document.getElementById('orcidId').value.trim();
+    const projectLogo = document.getElementById('projectLogo').files[0];
 
-        if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
-            return resolve({ success: false, error: "Please fill in all required fields." });
+    if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
+        throw new Error("Please fill in all required fields.");
+    }
+
+    if (!GITHUB_TOKEN) {
+        throw new Error('GitHub token is not available');
+    }
+
+    try {
+        const urlParts = projectUrl.split('/');
+        const repoName = urlParts.slice(3).join('/');
+        const repoDetails = await fetchRepoDetails(githubUsername, repoName);
+
+        if (!repoDetails.isContributor) {
+            throw new Error("Only contributors to the repository can add the project.");
         }
 
-        try {
-            const urlParts = projectUrl.split('/');
-            const repoName = urlParts.slice(3).join('/');
-            const repoDetails = await fetchRepoDetails(githubUsername, repoName);
-
-            if (!repoDetails.isContributor) {
-                return resolve({ success: false, error: "Only contributors to the repository can add the project." });
-            }
-        } catch (error) {
-            return resolve({ success: false, error: "Error: " + error.message });
+        let logoUrl = '';
+        if (projectLogo) {
+            logoUrl = await uploadLogo(projectLogo);
         }
 
-        try {
-            let logoUrl = '';
-            if (projectLogo) {
-                logoUrl = await uploadLogo(projectLogo);
-            }
+        const newProject = {
+            name: projectName,
+            abbreviation: projectAbbreviation,
+            description: projectDescription,
+            url: projectUrl,
+            language: projectLanguage,
+            keywords: projectKeywords,
+            owner: githubUsername,
+            orcidId: orcidId,
+            logo: logoUrl
+        };
 
-            const newProject = {
-                name: projectName,
-                abbreviation: projectAbbreviation,
-                description: projectDescription,
-                url: projectUrl,
-                language: projectLanguage,
-                keywords: projectKeywords,
-                owner: githubUsername,
-                orcidId: orcidId,
-                logo: logoUrl
-            };
+        projects.push(newProject);
 
-            projects.push(newProject);
+        // Create and display the new project card
+        const projectsContainer = document.getElementById('projects-container');
+        const newProjectCard = createProjectCard(newProject);
+        projectsContainer.appendChild(newProjectCard);
 
-            // Create and display the new project card
-            const projectsContainer = document.getElementById('projects-container');
-            const newProjectCard = createProjectCard(newProject);
-            projectsContainer.appendChild(newProjectCard);
+        // Update the GitHub repository with the new project
+        await updateGitHubRepository(projects);
 
-            // Update the GitHub repository with the new project
-            await updateGitHubRepository(projects);
-
-            return resolve({ success: true });
-        } catch (error) {
-            console.error('Error adding new project:', error);
-            return resolve({ success: false, error: "Error: " + error.message });
-        }
-    });
+        return { success: true };
+    } catch (error) {
+        console.error('Error adding new project:', error);
+        throw error;
+    }
 }
 
 async function uploadLogo(file) {

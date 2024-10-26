@@ -56,19 +56,28 @@ export async function fetchRepoDetails(username, repo) {
 }
 
 export async function updateGitHubRepository(projects) {
-    const token = GITHUB_TOKEN; // Replace with your GitHub Personal Access Token
-    const owner = GITHUB_USERNAME; // Replace with your GitHub username
+    const token = GITHUB_TOKEN;
+    const owner = GITHUB_USERNAME;
     const repo = GITHUB_REPO;
     const path = 'projects.json';
-    const branch = 'dev/projectCommit';
+    const branch = 'dev/projectCommit'; // or whatever branch you're using
 
     const content = btoa(JSON.stringify(projects, null, 2));
 
+    console.log('Updating GitHub repository...');
+    console.log('Token (first 10 chars):', token.substring(0, 10) + '...');
+
     try {
+        // First, get the current file (if it exists)
         const currentFile = await getCurrentFile(owner, repo, path, branch, token);
-    
-        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents?ref=${branch}`, {
+
+        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
             method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/vnd.github.v3+json'
+            },
             body: JSON.stringify({
                 message: 'Update projects',
                 content: content,
@@ -79,7 +88,10 @@ export async function updateGitHubRepository(projects) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error('Failed to update GitHub repository');
+            console.error('Response status:', response.status);
+            console.error('Response headers:', Object.fromEntries(response.headers));
+            console.error('Error data:', errorData);
+            throw new Error(`Failed to update GitHub repository: ${errorData.message}`);
         }
 
         console.log('GitHub repository updated successfully');
@@ -91,19 +103,26 @@ export async function updateGitHubRepository(projects) {
 
 async function getCurrentFile(owner, repo, path, branch, token) {
     try {
-        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`);
+        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json'
+            },
+        });
 
         if (response.status === 404) {
-            return null;
+            return null; // File doesn't exist yet
         }
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch current file: ${response.statusText}`);
+            console.error('Response status:', response.status);
+            console.error('Response headers:', Object.fromEntries(response.headers));
+            throw new Error(`Failed to get current file: ${response.statusText}`);
         }
 
         return await response.json();
     } catch (error) {
-        console.error('Error fetching current file:', error);
+        console.error('Error getting current file:', error);
         return null;
     }
 }
