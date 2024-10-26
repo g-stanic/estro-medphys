@@ -5,11 +5,23 @@ let projects = [];
 async function fetchProjects() {
     try {
         const response = await fetch('https://api.github.com/repos/g-stanic/estro-medphys/contents/projects.json');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        
+        if (!data.content) {
+            throw new Error('No content found in the response');
+        }
+        
         const content = atob(data.content);
         projects = JSON.parse(content);
+        console.log('Projects loaded successfully:', projects);
     } catch (error) {
         console.error('Error fetching projects:', error);
+        console.log('Response:', error.response);
         projects = []; // Set to empty array if fetch fails
     }
 }
