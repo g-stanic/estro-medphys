@@ -55,15 +55,15 @@ export async function fetchRepoDetails(username, repo) {
     }
 }
 
-async function updateGitHubRepository(projects) {
-  const token = GITHUB_TOKEN; // Replace with your GitHub Personal Access Token
-  const owner = GITHUB_USERNAME; // Replace with your GitHub username
-  const repo = GITHUB_REPO;
-  const path = 'projects.json';
+export async function updateGitHubRepository(projects) {
+    const token = GITHUB_TOKEN; // Replace with your GitHub Personal Access Token
+    const owner = GITHUB_USERNAME; // Replace with your GitHub username
+    const repo = GITHUB_REPO;
+    const path = 'projects.json';
 
-  const content = btoa(JSON.stringify(projects, null, 2));
+    const content = btoa(JSON.stringify(projects, null, 2));
 
-  try {
+    try {
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: 'PUT',
       headers: {
@@ -81,26 +81,26 @@ async function updateGitHubRepository(projects) {
       throw new Error('Failed to update GitHub repository');
     }
 
-    console.log('GitHub repository updated successfully');
-  } catch (error) {
-    console.error('Error updating GitHub repository:', error);
-    throw error;
+        console.log('GitHub repository updated successfully');
+    } catch (error) {
+        console.error('Error updating GitHub repository:', error);
+        throw error;
   }
 }
 
 async function getFileSHA(owner, repo, path, token) {
-  const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-    headers: {
-      'Authorization': `token ${token}`,
-    },
-  });
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+        headers: {
+        'Authorization': `token ${token}`,
+        },
+    });
 
-  if (response.ok) {
-    const data = await response.json();
-    return data.sha;
-  }
+    if (response.ok) {
+        const data = await response.json();
+        return data.sha;
+    }
 
-  return null;
+    return null;
 }
 
 export { updateGitHubRepository };

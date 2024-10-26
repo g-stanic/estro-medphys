@@ -1,6 +1,18 @@
-import { fetchRepoDetails } from './api.js';
-import { projects } from '../data/projectData.js';
-import { updateGitHubRepository } from './api.js';
+import { fetchRepoDetails, updateGitHubRepository } from './api.js';
+
+let projects = [];
+
+async function fetchProjects() {
+    try {
+        const response = await fetch('https://api.github.com/repos/g-stanic/estro-medphys/contents/projects.json');
+        const data = await response.json();
+        const content = atob(data.content);
+        projects = JSON.parse(content);
+    } catch (error) {
+        console.error('Error fetching projects:', error);
+        projects = []; // Set to empty array if fetch fails
+    }
+}
 
 export function createProjectCard(project) {
     const card = document.createElement('div');
@@ -15,39 +27,14 @@ export function createProjectCard(project) {
 }
 
 export async function displayProjects() {
+    await fetchProjects();
     const projectsContainer = document.getElementById('projects-container');
     projectsContainer.innerHTML = ''; // Clear existing content
-
-    try {
-        const response = await fetch('https://api.github.com/repos/YOUR_GITHUB_USERNAME/estro-medphys-projects/contents/projects.json');
-        const data = await response.json();
-        const content = atob(data.content);
-        const projects = JSON.parse(content);
-
-        projects.forEach(project => {
-            const projectCard = createProjectCard(project);
-            projectsContainer.appendChild(projectCard);
-        });
-    } catch (error) {
-        console.error('Error fetching projects:', error);
-        projectsContainer.innerHTML = '<p>Error loading projects. Please try again later.</p>';
-    }
+    projects.forEach(project => {
+        const projectCard = createProjectCard(project);
+        projectsContainer.appendChild(projectCard);
+    });
 }
-
-export function addProject(newProject) {
-    projects.push(newProject);
-    // saveProjects();
-    displayProjects();
-}
-
-// export function saveProjects() {
-//     localStorage.setItem('customProjects', JSON.stringify(projects.slice(4))); // Save only custom projects
-// }
-
-// export function loadProjects() {
-//     const customProjects = JSON.parse(localStorage.getItem('customProjects')) || [];
-//     projects = [...projects.slice(0, 4), ...customProjects]; // Combine default and custom projects
-// }
 
 export function addNewProject() {
     return new Promise(async (resolve, reject) => {
@@ -95,7 +82,7 @@ export function addNewProject() {
                 logo: logoUrl
             };
 
-            addProject(newProject);
+            projects.push(newProject);
 
             // Update the GitHub repository with the new project
             await updateGitHubRepository(projects);
