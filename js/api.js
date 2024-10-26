@@ -72,6 +72,7 @@ export async function updateGitHubRepository(projects) {
             headers: {
                 'Authorization': `token ${token}`,
                 'Content-Type': 'application/json',
+                'Accept': 'application/vnd.github.v3+json'
             }, 
             body: JSON.stringify({
                 message: 'Update projects',
@@ -90,7 +91,7 @@ export async function updateGitHubRepository(projects) {
     } catch (error) {
         console.error('Error updating GitHub repository:', error);
         throw error;
-  }
+    }
 }
 
 async function getCurrentFile(owner, repo, path, branch, token) {
@@ -98,6 +99,7 @@ async function getCurrentFile(owner, repo, path, branch, token) {
         const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
             headers: {
                 'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json'
             },
         });
 
