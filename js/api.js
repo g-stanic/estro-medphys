@@ -67,7 +67,7 @@ export async function updateGitHubRepository(projects) {
     try {
         const currentFile = await getCurrentFile(owner, repo, path, branch, token);
     
-        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
             method: 'PUT',
             body: JSON.stringify({
                 message: 'Update projects',
