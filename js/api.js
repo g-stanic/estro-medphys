@@ -69,11 +69,6 @@ export async function updateGitHubRepository(projects) {
     
         const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
             method: 'PUT',
-            headers: {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/vnd.github.v3+json'
-            }, 
             body: JSON.stringify({
                 message: 'Update projects',
                 content: content,
@@ -96,12 +91,7 @@ export async function updateGitHubRepository(projects) {
 
 async function getCurrentFile(owner, repo, path, branch, token) {
     try {
-        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
-            headers: {
-                'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3+json'
-            },
-        });
+        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`);
 
         if (response.status === 404) {
             return null;
