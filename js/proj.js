@@ -117,6 +117,11 @@ export function addNewProject() {
 
             projects.push(newProject);
 
+            // Create and display the new project card
+            const projectsContainer = document.getElementById('projects-container');
+            const newProjectCard = createProjectCard(newProject);
+            projectsContainer.appendChild(newProjectCard);
+
             // Update the GitHub repository with the new project
             // await updateGitHubRepository(projects);
 

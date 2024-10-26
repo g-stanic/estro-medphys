@@ -109,8 +109,22 @@ function handleAddNewProject() {
             statusMessage.textContent = 'Project added successfully!';
             const overlay = document.querySelector('.overlay');
             overlay.style.display = 'none';
+            // Clear the form fields
+            clearAddProjectForm();
         } else if (result && result.error) {
             statusMessage.textContent = result.error;
         }
     });
+}
+
+function clearAddProjectForm() {
+    document.getElementById('projectName').value = '';
+    document.getElementById('projectAbbreviation').value = '';
+    document.getElementById('projectDescription').value = '';
+    document.getElementById('projectUrl').value = '';
+    document.getElementById('projectLanguage').value = '';
+    document.getElementById('projectKeywords').selectedIndex = -1;
+    document.getElementById('githubUsername').value = '';
+    document.getElementById('orcidId').value = '';
+    document.getElementById('projectLogo').value = '';
 }
