@@ -52,3 +52,53 @@ export async function fetchRepoDetails(username, repo) {
         throw error;
     }
 }
+
+async function updateGitHubRepository(projects) {
+  const token = 'YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'; // Replace with your GitHub Personal Access Token
+  const owner = 'YOUR_GITHUB_USERNAME'; // Replace with your GitHub username
+  const repo = 'estro-medphys-projects';
+  const path = 'projects.json';
+
+  const content = btoa(JSON.stringify(projects, null, 2));
+
+  try {
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: 'Update projects',
+        content: content,
+        sha: await getFileSHA(owner, repo, path, token),
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update GitHub repository');
+    }
+
+    console.log('GitHub repository updated successfully');
+  } catch (error) {
+    console.error('Error updating GitHub repository:', error);
+    throw error;
+  }
+}
+
+async function getFileSHA(owner, repo, path, token) {
+  const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+    headers: {
+      'Authorization': `token ${token}`,
+    },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data.sha;
+  }
+
+  return null;
+}
+
+export { updateGitHubRepository };

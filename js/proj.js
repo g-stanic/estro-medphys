@@ -1,5 +1,6 @@
 import { fetchRepoDetails } from './api.js';
 import { projects } from '../data/projectData.js';
+import { updateGitHubRepository } from './api.js';
 
 export function createProjectCard(project) {
     const card = document.createElement('div');
@@ -13,13 +14,24 @@ export function createProjectCard(project) {
     return card;
 }
 
-export function displayProjects() {
+export async function displayProjects() {
     const projectsContainer = document.getElementById('projects-container');
     projectsContainer.innerHTML = ''; // Clear existing content
-    projects.forEach(project => {
-        const projectCard = createProjectCard(project);
-        projectsContainer.appendChild(projectCard);
-    });
+
+    try {
+        const response = await fetch('https://api.github.com/repos/YOUR_GITHUB_USERNAME/estro-medphys-projects/contents/projects.json');
+        const data = await response.json();
+        const content = atob(data.content);
+        const projects = JSON.parse(content);
+
+        projects.forEach(project => {
+            const projectCard = createProjectCard(project);
+            projectsContainer.appendChild(projectCard);
+        });
+    } catch (error) {
+        console.error('Error fetching projects:', error);
+        projectsContainer.innerHTML = '<p>Error loading projects. Please try again later.</p>';
+    }
 }
 
 export function addProject(newProject) {
@@ -48,7 +60,6 @@ export function addNewProject() {
         const githubUsername = document.getElementById('githubUsername').value.trim();
         const orcidId = document.getElementById('orcidId').value.trim();
         const projectLogo = document.getElementById('projectLogo').files[0];
-        const repoStatus = document.getElementById('repoStatus');
 
         if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
             return resolve({ success: false, error: "Please fill in all required fields." });
@@ -85,6 +96,10 @@ export function addNewProject() {
             };
 
             addProject(newProject);
+
+            // Update the GitHub repository with the new project
+            await updateGitHubRepository(projects);
+
             return resolve({ success: true });
         } catch (error) {
             return resolve({ success: false, error: "Error: " + error.message });
