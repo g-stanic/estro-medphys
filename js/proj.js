@@ -5,7 +5,11 @@ let projects = [];
 
 async function fetchProjects() {
     try {
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/projects.json?ref=dev/projectCommit`, {
+        console.log('Fetching projects...');
+        console.log('URL:', `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/projects.json`);
+        console.log('Token (first 10 chars):', GITHUB_TOKEN.substring(0, 10) + '...');
+        
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/projects.json`, {
             headers: {
                 'Authorization': `token ${GITHUB_TOKEN}`,
                 'Accept': 'application/vnd.github.v3+json'
@@ -13,11 +17,7 @@ async function fetchProjects() {
         });
         
         if (!response.ok) {
-            if (response.status === 401) {
-                throw new Error('Unauthorized: Please check your GitHub token');
-            } else {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
@@ -27,16 +27,22 @@ async function fetchProjects() {
         }
         
         const content = atob(data.content);
+        console.log('Raw content:', content);
         projects = JSON.parse(content);
+        console.log('Parsed projects:', projects);
         console.log('Projects loaded successfully:', projects);
     } catch (error) {
-        console.error('Error fetching projects:', error.message);
+        console.error('Error fetching projects:', error);
+        console.log('Error name:', error.name);
+        console.log('Error message:', error.message);
         if (error.response) {
             console.log('Response status:', error.response.status);
             console.log('Response headers:', error.response.headers);
+            const text = await error.response.text();
+            console.log('Response text:', text);
         }
-        projects = []; // Set to empty array if fetch fails
-        throw error; // Re-throw the error to be handled by the calling function
+        projects = [];
+        throw error;
     }
 }
 
