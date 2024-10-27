@@ -77,7 +77,7 @@ export async function updateGitHubRepository(projects) {
             message: 'Update projects',
             content: btoa(content), // Base64 encode the content
             sha: currentFile.data.sha,
-            ref: 'dev/projectCommit',
+            branch: 'dev/projectCommit',
             headers: {
                 accept: 'application/vnd.github+json'
             }
