@@ -35,6 +35,11 @@ export function createOverlay() {
                 <option value="quality-assurance">Quality Assurance</option>
                 <!-- Add more options as needed -->
             </select>
+            <select id="projectLicense">
+                <option value="GPL-3.0">GPL-3.0</option>
+                <option value="MIT">MIT</option>
+                <option value="Apache-2.0">Apache-2.0</option>
+            </select>
             
             <!-- New logo input field -->
             <input type="file" id="projectLogo" accept="image/*">
@@ -102,19 +107,36 @@ export function showOverlay() {
     });
 }
 
-function handleAddNewProject() {
-    addNewProject().then(result => {
-        const statusMessage = document.getElementById('addProjectStatus');
-        if (result && result.success) {
-            statusMessage.textContent = 'Project added successfully!';
-            const overlay = document.querySelector('.overlay');
-            overlay.style.display = 'none';
-            // Clear the form fields
-            clearAddProjectForm();
-        } else if (result && result.error) {
-            statusMessage.textContent = result.error;
-        }
+async function handleAddNewProject() {
+    const formData = {
+        name: document.getElementById('projectName').value,
+        description: document.getElementById('projectDescription').value,
+        repository: document.getElementById('projectUrl').value,
+        website: '',  // Add a website field to your form if needed
+        tags: Array.from(document.getElementById('projectKeywords').selectedOptions).map(opt => opt.value),
+        license: 'GPL-3.0',  // You might want to add a license selector to your form
+        maintainers: [document.getElementById('githubUsername').value]
+    };
+
+    const handler = new GitHubSubmissionHandler({
+        owner: GITHUB_USERNAME,
+        repo: GITHUB_REPO,
+        token: GITHUB_TOKEN,
+        projectsPath: '_projects'
     });
+
+    const result = await handler.submitProject(formData);
+    const statusMessage = document.getElementById('addProjectStatus');
+    
+    if (result.success) {
+        statusMessage.textContent = result.message;
+        window.open(result.prUrl, '_blank');
+        const overlay = document.querySelector('.overlay');
+        overlay.style.display = 'none';
+        clearAddProjectForm();
+    } else {
+        statusMessage.textContent = result.message;
+    }
 }
 
 function clearAddProjectForm() {
