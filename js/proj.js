@@ -2,7 +2,7 @@ import { fetchRepoDetails, updateGitHubRepository } from './api.js';
 import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
 import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
 
-let octokit = new Octokit({auth: GITHUB_TOKEN});
+let octokit = new Octokit({auth: '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'});
 
 let projects = [];
 
