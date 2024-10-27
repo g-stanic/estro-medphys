@@ -1,5 +1,7 @@
 import { authenticateWithGitHub } from './auth.js';
 import { addNewProject } from './proj.js';
+import { GITHUB_USERNAME, GITHUB_REPO, GITHUB_TOKEN } from './config.js';
+import { GitHubSubmissionHandler } from './submissionHandler.js';
 
 export function addLoginButton() {
     const header = document.querySelector('header');
