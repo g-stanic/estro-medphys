@@ -2,7 +2,7 @@ import { fetchRepoDetails, updateGitHubRepository } from './api.js';
 import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
 import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
 
-const octokit = new Octokit({
+export const octokit = new Octokit({
     baseUrl: 'https://api.github.com'
 });
 

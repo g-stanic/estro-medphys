@@ -1,28 +1,28 @@
-import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
+import { octokit } from "./proj.js";
 import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
 
-export async function checkRepo() {
-    const repoInput = document.getElementById('repoInput');
-    const repoStatus = document.getElementById('repoStatus');
-    const repo = repoInput.value.trim();
+// export async function checkRepo() {
+//     const repoInput = document.getElementById('repoInput');
+//     const repoStatus = document.getElementById('repoStatus');
+//     const repo = repoInput.value.trim();
 
-    if (!repo) {
-        repoStatus.textContent = "Please enter a repository.";
-        return;
-    }
+//     if (!repo) {
+//         repoStatus.textContent = "Please enter a repository.";
+//         return;
+//     }
 
-    try {
-        const response = await fetch(`https://api.github.com/repos/${repo}`);
-        if (response.ok) {
-            repoStatus.textContent = "The repo exists.";
-        } else {
-            repoStatus.textContent = "The repo does not exist.";
-        }
-    } catch (error) {
-        repoStatus.textContent = "An error occurred while checking the repository.";
-        console.error('Error:', error);
-    }
-}
+//     try {
+//         const response = await fetch(`https://api.github.com/repos/${repo}`);
+//         if (response.ok) {
+//             repoStatus.textContent = "The repo exists.";
+//         } else {
+//             repoStatus.textContent = "The repo does not exist.";
+//         }
+//     } catch (error) {
+//         repoStatus.textContent = "An error occurred while checking the repository.";
+//         console.error('Error:', error);
+//     }
+// }
 
 export async function fetchRepoDetails(username, repo) {
     try {
@@ -57,73 +57,32 @@ export async function fetchRepoDetails(username, repo) {
 }
 
 export async function updateGitHubRepository(projects) {
-    const token = GITHUB_TOKEN;
-    const owner = GITHUB_USERNAME;
-    const repo = GITHUB_REPO;
-    const path = 'projects.json';
-    const branch = 'dev/projectCommit'; // or whatever branch you're using
-
-    const content = btoa(JSON.stringify(projects, null, 2));
-
-    console.log('Updating GitHub repository...');
-    console.log('Token (first 10 chars):', token.substring(0, 10) + '...');
-
     try {
-        // First, get the current file (if it exists)
-        const currentFile = await getCurrentFile(owner, repo, path, branch, token);
+        const content = JSON.stringify(projects, null, 2);
 
-        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
-            method: 'PUT',
+        const currentFile = await octokit.repos.getContent({
+            owner: GITHUB_USERNAME,
+            repo: GITHUB_REPO,
+            path: 'projects.json',
+            ref: 'dev/projectCommit',
             headers: {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/vnd.github.v3+json'
-            },
-            body: JSON.stringify({
-                message: 'Update projects',
-                content: content,
-                sha: currentFile ? currentFile.sha : null,
-                branch: branch
-            }),
+                accept: 'application/vnd.github+json'
+            }
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Response status:', response.status);
-            console.error('Response headers:', Object.fromEntries(response.headers));
-            console.error('Error data:', errorData);
-            throw new Error(`Failed to update GitHub repository: ${errorData.message}`);
-        }
+        const response = await octokit.repos.createOrUpdateFileContents({
+            owner: GITHUB_USERNAME,
+            repo: GITHUB_REPO,
+            path: 'projects.json',
+            message: 'Update projects',
+            content: btoa(content), // Base64 encode the content
+            sha: currentFile.data.sha,
+            branch: 'dev/projectCommit'
+        });
 
-        console.log('GitHub repository updated successfully');
+        return response;
     } catch (error) {
         console.error('Error updating GitHub repository:', error);
         throw error;
-    }
-}
-
-async function getCurrentFile(owner, repo, path, branch, token) {
-    try {
-        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
-            headers: {
-                'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3+json'
-            },
-        });
-
-        if (response.status === 404) {
-            return null; // File doesn't exist yet
-        }
-
-        if (!response.ok) {
-            console.error('Response status:', response.status);
-            console.error('Response headers:', Object.fromEntries(response.headers));
-            throw new Error(`Failed to get current file: ${response.statusText}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error getting current file:', error);
-        return null;
     }
 }
