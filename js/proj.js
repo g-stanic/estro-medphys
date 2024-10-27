@@ -8,7 +8,7 @@ let projects = [];
 
 async function fetchProjects() {
     try {
-        const response = await octokit.repos.GetContent({
+        const response = await octokit.repos.getContent({
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
             path: 'projects.json',
