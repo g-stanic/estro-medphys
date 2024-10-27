@@ -9,10 +9,7 @@ let projects = [];
 
 async function fetchProjects() {
     try {
-        // If we have a token, create a new Octokit instance with the token
-        const authedOctokit = new Octokit({ auth: GITHUB_TOKEN});
-
-        const response = await authedOctokit.rest.repos.getContent({
+        const response = await octokit.rest.repos.getContent({
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
             path: 'projects.json',
@@ -35,11 +32,7 @@ async function fetchProjects() {
 
     } catch (error) {
         console.error('Error in fetchProjects:', error);
-        if (error.status === 401) {
-            console.error('Authentication failed. Clearing token and redirecting to login.');
-            localStorage.removeItem('github_token');
-            window.location.reload(); // This will trigger a new auth flow
-        } else if (error.status === 404) {
+        if (error.status === 404) {
             console.error('Repository or file not found. Check your GitHub username, repo name, and file path.');
         }
         throw error;
