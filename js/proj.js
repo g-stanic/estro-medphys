@@ -1,7 +1,6 @@
 import { fetchRepoDetails, updateGitHubRepository } from './api.js';
-import { GITHUB_CLIENT_ID, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
+import { GITHUB_CLIENT_ID, GITHUB_USERNAME, GITHUB_REPO, GITHUB_TOKEN } from './config.js';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
-import { createOAuthUserAuth } from 'https://cdn.skypack.dev/@octokit/auth-oauth-user@2.0.0';
 
 // Initialize Octokit without authentication for now
 export const octokit = new Octokit();
@@ -10,18 +9,8 @@ let projects = [];
 
 async function fetchProjects() {
     try {
-        // Check if we have a token in localStorage
-        let token = localStorage.getItem('github_token');
-
-        if (!token) {
-            // If no token, redirect to GitHub for authorization
-            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo`;
-            window.location.href = authUrl;
-            return; // Stop execution here as we're redirecting
-        }
-
         // If we have a token, create a new Octokit instance with the token
-        const authedOctokit = new Octokit({ auth: token });
+        const authedOctokit = new Octokit({ auth: GITHUB_TOKEN});
 
         const response = await authedOctokit.rest.repos.getContent({
             owner: GITHUB_USERNAME,
@@ -157,16 +146,4 @@ async function uploadLogo(file) {
         reader.onerror = (e) => reject(new Error('Failed to read file'));
         reader.readAsDataURL(file);
     });
-}
-
-// Add this function to handle the OAuth callback
-export function handleOAuthCallback() {
-    const code = new URLSearchParams(window.location.search).get('code');
-    if (code) {
-        // In a real app, you would exchange this code for an access token on your server
-        // For demo purposes, we'll just store the code as if it were a token
-        localStorage.setItem('github_token', code);
-        // Remove the code from the URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
 }

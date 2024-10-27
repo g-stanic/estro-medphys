@@ -1,11 +1,9 @@
 import { displayProjects} from './proj.js';
 import { addLoginButton, showOverlay } from './ui.js';
 import { handleAuthCode } from './auth.js';
-import { handleOAuthCallback } from './proj.js';
 
 async function initializeApp() {
     addLoginButton();
-    handleOAuthCallback();
     await displayProjects();
 
     const addProjectButton = document.getElementById('addProjectButton');
