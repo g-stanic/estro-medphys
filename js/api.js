@@ -70,7 +70,7 @@ export async function updateGitHubRepository(projects) {
             }
         });
 
-        const response = await octokit.repos.createOrUpdateFileContents({
+        const response = await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}?ref={ref}', {
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
             path: 'projects.json',
