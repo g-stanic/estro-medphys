@@ -19,19 +19,17 @@ async function fetchProjects() {
                 accept: 'application/vnd.github+json'
             }
         });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+
+        if (!response.data) {
+            throw new Error('No data found in the response');
         }
-        
-        const data = await response.json();
-        
-        if (!data.content) {
+
+        if (!response.data.content) {
             throw new Error('No content found in the response');
         }
-        
+
         // Decode the base64 encoded content
-        const content = atob(data.content);
+        const content = atob(response.data.content);
         projects = JSON.parse(content);
 
     } catch (error) {
