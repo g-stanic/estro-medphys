@@ -1,7 +1,7 @@
-import { CLIENT_ID, REDIRECT_URI} from './config.js';
+import { GITHUB_CLIENT_ID, REDIRECT_URI} from './config.js';
 
 export function authenticateWithGitHub() {
-    const authUrl = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=read:user`;
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=read:user`;
     window.open(authUrl, 'GitHub Authentication', 'width=600,height=600');
 }
 
