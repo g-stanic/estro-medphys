@@ -1,6 +1,6 @@
 import { fetchRepoDetails, updateGitHubRepository } from './api.js';
 import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
-import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
+import { Octokit } from "octokit";
 
 export const octokit = new Octokit({
     auth: GITHUB_TOKEN
@@ -10,7 +10,7 @@ let projects = [];
 
 async function fetchProjects() {
     try {
-        const response = await octokit.repos.getContent({
+        const response = await octokit.rest.repos.getContent({
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
             path: 'projects.json',
