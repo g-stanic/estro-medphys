@@ -9,7 +9,7 @@ let projects = [];
 
 async function fetchProjects() {
     try {
-        const response = await octokit.rest.repos.getContent({
+        const response = await octokit.repos.getContent({
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
             path: 'projects.json',
@@ -121,7 +121,7 @@ export async function addNewProject() {
         projectsContainer.appendChild(newProjectCard);
 
         // Update the GitHub repository with the new project
-        await updateGitHubRepository(projects);
+        // await updateGitHubRepository(projects);
 
         return { success: true };
     } catch (error) {
