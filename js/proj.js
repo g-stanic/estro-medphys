@@ -1,6 +1,6 @@
 import { fetchRepoDetails, updateGitHubRepository } from './api.js';
 import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
-import { Octokit } from 'https://cdn.skypack.dev/octokit';
+import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 
 export const octokit = new Octokit({
     auth: GITHUB_TOKEN
