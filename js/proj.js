@@ -2,7 +2,7 @@ import { fetchRepoDetails, updateGitHubRepository } from './api.js';
 import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
 import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
 
-let octokit = new Octokit({auth: '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'});
+const octokit = new Octokit({auth: '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'});
 
 let projects = [];
 
@@ -12,7 +12,10 @@ async function fetchProjects() {
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
             path: 'projects.json',
-            ref: 'dev/projectCommit'
+            ref: 'dev/projectCommit',
+            headers: {
+                accept: 'application/vnd.github+json'
+            }
         });
         
         if (!response.ok) {
