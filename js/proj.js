@@ -1,24 +1,40 @@
 import { fetchRepoDetails, updateGitHubRepository } from './api.js';
-import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
+import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
+import { createOAuthAppAuth } from 'https://cdn.skypack.dev/@octokit/auth-oauth-app@5.0.5';
 
 export const octokit = new Octokit({
-    auth: GITHUB_TOKEN
+    authStrategy: createOAuthAppAuth({
+        clientId: GITHUB_CLIENT_ID,
+        clientSecret: GITHUB_CLIENT_SECRET,
+    }),
 });
 
 let projects = [];
 
 async function fetchProjects() {
     try {
+        // Authenticate the app
+        const appAuthentication = await createOAuthAppAuth({
+            clientId: GITHUB_CLIENT_ID,
+            clientSecret: GITHUB_CLIENT_SECRET,
+        })({
+            type: "oauth-app",
+        });
+
+        // Use the app authentication token
         const response = await octokit.rest.repos.getContent({
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
             path: 'projects.json',
             ref: 'dev/projectCommit',
             headers: {
+                authorization: `token ${appAuthentication.token}`,
                 accept: 'application/vnd.github+json'
             }
         });
+
+        console.log('Response received:', response);
 
         if (!response.data) {
             throw new Error('No data found in the response');
@@ -33,6 +49,12 @@ async function fetchProjects() {
         projects = JSON.parse(content);
 
     } catch (error) {
+        console.error('Error in fetchProjects:', error);
+        if (error.status === 401) {
+            console.error('Authentication failed. Check your OAuth credentials.');
+        } else if (error.status === 404) {
+            console.error('Repository or file not found. Check your GitHub username, repo name, and file path.');
+        }
         throw error;
     }
     return projects;
@@ -81,8 +103,8 @@ export async function addNewProject() {
         throw new Error("Please fill in all required fields.");
     }
 
-    if (!GITHUB_TOKEN) {
-        throw new Error('GitHub token is not available');
+    if (!GITHUB_CLIENT_ID) {
+        throw new Error('GitHub client ID is not available');
     }
 
     try {
