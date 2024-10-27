@@ -3,7 +3,7 @@ import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
 import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
 
 export const octokit = new Octokit({
-    baseUrl: 'https://api.github.com'
+    auth: GITHUB_TOKEN
 });
 
 let projects = [];
