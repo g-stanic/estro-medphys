@@ -1,15 +1,19 @@
 import { fetchRepoDetails, updateGitHubRepository } from './api.js';
 import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
+import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
+
+let octokit = new Octokit({auth: GITHUB_TOKEN});
 
 let projects = [];
 
 async function fetchProjects() {
     try {
-        console.log('Fetching projects...');
-        console.log('URL:', `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/projects.json?ref=dev/projectCommit`);
-        console.log('Token (first 10 chars):', GITHUB_TOKEN.substring(0, 10) + '...');
-        
-        const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/projects.json?ref=dev/projectCommit`);
+        const response = await octokit.repos.GetContent({
+            owner: GITHUB_USERNAME,
+            repo: GITHUB_REPO,
+            path: 'projects.json',
+            ref: 'dev/projectCommit'
+        });
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -21,21 +25,11 @@ async function fetchProjects() {
             throw new Error('No content found in the response');
         }
         
+        // Decode the base64 encoded content
         const content = atob(data.content);
-        console.log('Raw content:', content);
         projects = JSON.parse(content);
-        console.log('Parsed projects:', projects);
-        console.log('Projects loaded successfully:', projects);
+
     } catch (error) {
-        console.error('Error fetching projects:', error);
-        console.log('Error name:', error.name);
-        console.log('Error message:', error.message);
-        if (error.response) {
-            console.log('Response status:', error.response.status);
-            console.log('Response headers:', error.response.headers);
-            const text = await error.response.text();
-            console.log('Response text:', text);
-        }
         throw error;
     }
     return projects;

@@ -1,3 +1,4 @@
+import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
 import { GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO } from './config.js';
 
 export async function checkRepo() {
