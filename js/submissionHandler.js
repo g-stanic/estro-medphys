@@ -44,75 +44,32 @@ export class GitHubSubmissionHandler {
         }
 
         const github = new Octokit({ auth: token });
-      
-        // Get the latest commit SHA from the base branch
-        const {data: ref} = await github.git.getRef({
-            owner: this.owner,
-            repo: this.repo,
-            ref: `heads/${this.baseBranch}`
-        });
-        const baseSha = ref.object.sha;
-
-        // Create a new branch
-        const newBranch = generateBranchName(formData.name);
-        await github.git.createRef({
-            owner: this.owner,
-            repo: this.repo,
-            ref: `refs/heads/${newBranch}`,
-            sha: baseSha
-        });
-
-        // Create the new file with project data
-        const content = `---
-name: ${formData.name}
-description: ${formData.description}
-repository: ${formData.repository}
-website: ${formData.website || ''}
-tags: ${JSON.stringify(formData.tags)}
-license: ${formData.license}
-maintainers: ${JSON.stringify(formData.maintainers)}
-added_date: ${new Date().toISOString().split('T')[0]}
----`;
-        const fileName = `${formData.name.toLowerCase().replace(/\s+/g, '-')}.yml`;
-        const filePath = `${this.projectsPath}/${fileName}`;
-
-        await github.repos.createOrUpdateFileContents({
-            owner: this.owner,
-            repo: this.repo,
-            path: filePath,
-            message: `Add new project: ${formData.name}`,
-            content: encodeContent(content),
-            branch: newBranch
-        });
-
-        // Create a Pull Request
-        const {data: pr} = await github.pulls.create({
-            owner: this.owner,
-            repo: this.repo,
-            title: `Add new project: ${formData.name}`,
-            head: newBranch,
-            base: this.baseBranch,
-            body: `
-                New project submission:
-                - Name: ${formData.name}
-                - Description: ${formData.description}
-                - Repository: ${formData.repository}
-                - License: ${formData.license}
-
-                Submitted through the website form.`
+        
+        try {
+            // Create the new file with project data directly on the base branch
+            const fileName = `${formData.name.toLowerCase().replace(/\s+/g, '-')}.yml`;
+            const filePath = `${this.projectsPath}/${fileName}`;
+            
+            await github.repos.createOrUpdateFileContents({
+                owner: this.owner,
+                repo: this.repo,
+                path: filePath,
+                message: `Add new project: ${formData.name}`,
+                content: encodeContent(generateYAMLContent(formData)),
+                branch: this.baseBranch  // Commit directly to base branch
             });
 
-        return {
-            success: true,
-            prUrl: pr.html_url,
-            message: 'Project submitted successfully! Your submission is under review.'
-        };
-
-    } catch (error) {
-        console.error('Error submitting project:', error);
-        return {
-            success: false,
-            message: 'Error submitting project. Please try again later.'
-        };
+            return {
+                success: true,
+                message: 'Project submitted successfully!'
+            };
+        } catch (error) {
+            console.error('Error submitting project:', error);
+            return {
+                success: false,
+                message: 'Error submitting project. Please try again later.'
+            };
+        }
     }
 }
+
