@@ -123,7 +123,7 @@ async function handleAddNewProject() {
     const handler = new GitHubSubmissionHandler({
         owner: GITHUB_USERNAME,
         repo: GITHUB_REPO,
-        token: GITHUB_TOKEN,
+        baseBranch: 'dev/projectCommit',
         projectsPath: '_projects'
     });
 
