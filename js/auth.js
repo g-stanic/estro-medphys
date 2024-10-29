@@ -1,4 +1,4 @@
-import { REDIRECT_URI} from './config.js';
+import { REDIRECT_URI, PROXY_URL} from './config.js';
 
 const PROXY_URL = process.env.NODE_ENV === 'development' 
     ? 'http://localhost:3000'
