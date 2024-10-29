@@ -1,9 +1,5 @@
 import { REDIRECT_URI, PROXY_URL} from './config.js';
 
-const PROXY_URL = process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:3000'
-    : 'https://your-production-proxy-url.com';
-
 export async function authenticateWithGitHub() {
     const response = await fetch(`${PROXY_URL}/client-id`);
     const data = await response.json();
