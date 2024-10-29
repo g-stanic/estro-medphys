@@ -1,0 +1,10 @@
+---
+        name: matRas
+        description: matRas is matRas
+        repository: https://github.com/e0404/matRad
+        website: 
+        tags: ["radiation-therapy"]
+        license: GPL-3.0
+        maintainers: ["g-stanic"]
+        added_date: 2024-10-29
+        ---
