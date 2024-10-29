@@ -1,5 +1,5 @@
 import { fetchRepoDetails, updateGitHubRepository } from './api.js';
-import { GITHUB_CLIENT_ID, GITHUB_USERNAME, GITHUB_REPO, GITHUB_TOKEN } from './config.js';
+import { GITHUB_USERNAME, GITHUB_REPO} from './config.js';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 
 // Initialize Octokit without authentication for now
@@ -121,7 +121,7 @@ export async function addNewProject() {
         projectsContainer.appendChild(newProjectCard);
 
         // Update the GitHub repository with the new project
-        // await updateGitHubRepository(projects);
+        await updateGitHubRepository(projects);
 
         return { success: true };
     } catch (error) {

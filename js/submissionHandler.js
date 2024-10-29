@@ -1,4 +1,5 @@
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
+import { getGitHubToken } from './auth.js';
 
 // Function to encode content in Base64 (required by GitHub API)
 function encodeContent(content) {
@@ -29,14 +30,20 @@ export class GitHubSubmissionHandler {
     constructor(options) {
         this.owner = options.owner;
         this.repo = options.repo;
-        this.token = options.token;
         this.baseBranch = options.baseBranch || 'main';
         this.projectsPath = options.projectsPath || '_projects';
     }
 
     async submitProject(formData) {
-    try {
-        const github = new Octokit({ auth: this.token });
+        const token = getGitHubToken();
+        if (!token) {
+            return {
+                success: false,
+                message: 'Please login with GitHub first'
+            };
+        }
+
+        const github = new Octokit({ auth: token });
       
         // Get the latest commit SHA from the base branch
         const {data: ref} = await github.git.getRef({
@@ -98,6 +105,5 @@ export class GitHubSubmissionHandler {
             success: false,
             message: 'Error submitting project. Please try again later.'
         };
-    }
     }
 }
