@@ -15,15 +15,15 @@ function generateBranchName(projectName) {
 // Function to create YAML content from form data
 function generateYAMLContent(formData) {
     return `---
-        name: ${formData.name}
-        description: ${formData.description}
-        repository: ${formData.repository}
-        website: ${formData.website || ''}
-        tags: ${JSON.stringify(formData.tags)}
-        license: ${formData.license}
-        maintainers: ${JSON.stringify(formData.maintainers)}
-        added_date: ${new Date().toISOString().split('T')[0]}
-        ---`;
+name: ${formData.name}
+description: ${formData.description}
+repository: ${formData.repository}
+website: ${formData.website || ''}
+tags: ${JSON.stringify(formData.tags)}
+license: ${formData.license}
+maintainers: ${JSON.stringify(formData.maintainers)}
+added_date: ${new Date().toISOString().split('T')[0]}
+---`;
 }
 
 export class GitHubSubmissionHandler {
