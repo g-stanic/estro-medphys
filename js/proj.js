@@ -1,6 +1,7 @@
 import { fetchRepoDetails, updateGitHubRepository } from './api.js';
 import { GITHUB_USERNAME, GITHUB_REPO} from './config.js';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
+import jsyaml from 'https://cdn.skypack.dev/js-yaml';
 
 // Initialize Octokit without authentication for now
 export const octokit = new Octokit();
@@ -9,10 +10,11 @@ let projects = [];
 
 async function fetchProjects() {
     try {
+        // Get all files from the _projects directory
         const response = await octokit.repos.getContent({
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
-            path: 'projects.json',
+            path: '_projects',
             ref: 'dev/projectCommit'   
         });
 
@@ -22,18 +24,39 @@ async function fetchProjects() {
             throw new Error('No data found in the response');
         }
 
-        if (!response.data.content) {
-            throw new Error('No content found in the response');
-        }
+        // Filter for .yml files only
+        const ymlFiles = response.data.filter(file => file.name.endsWith('.yml'));
+        
+        // Fetch and parse each YAML file
+        const projectPromises = ymlFiles.map(async file => {
+            const fileContent = await octokit.repos.getContent({
+                owner: GITHUB_USERNAME,
+                repo: GITHUB_REPO,
+                path: file.path,
+                ref: 'dev/projectCommit'
+            });
 
-        // Decode the base64 encoded content
-        const content = atob(response.data.content);
-        projects = JSON.parse(content);
+            // Decode the base64 content
+            const content = atob(fileContent.data.content);
+            
+            // Parse YAML content
+            // Note: You'll need to import a YAML parser like js-yaml
+            const projectData = jsyaml.load(content);
+            
+            return {
+                ...projectData,
+                // Add any additional processing here if needed
+                id: file.name.replace('.yml', '')
+            };
+        });
+
+        // Wait for all projects to be fetched and parsed
+        projects = await Promise.all(projectPromises);
 
     } catch (error) {
         console.error('Error in fetchProjects:', error);
         if (error.status === 404) {
-            console.error('Repository or file not found. Check your GitHub username, repo name, and file path.');
+            console.error('Repository or directory not found. Check your GitHub username, repo name, and path.');
         }
         throw error;
     }
