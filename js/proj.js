@@ -39,13 +39,14 @@ async function fetchProjects() {
             // Decode the base64 content
             const content = atob(fileContent.data.content);
             
+            // Remove any leading/trailing document separators and whitespace
+            const cleanContent = content.replace(/^---\n/, '').replace(/\n---$/, '').trim();
+            
             // Parse YAML content
-            // Note: You'll need to import a YAML parser like js-yaml
-            const projectData = jsyaml.load(content);
+            const projectData = jsyaml.load(cleanContent);
             
             return {
                 ...projectData,
-                // Add any additional processing here if needed
                 id: file.name.replace('.yml', '')
             };
         });
