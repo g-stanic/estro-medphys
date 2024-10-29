@@ -63,7 +63,16 @@ export class GitHubSubmissionHandler {
         });
 
         // Create the new file with project data
-        const content = generateYAMLContent(formData);
+        const content = `---
+name: ${formData.name}
+description: ${formData.description}
+repository: ${formData.repository}
+website: ${formData.website || ''}
+tags: ${JSON.stringify(formData.tags)}
+license: ${formData.license}
+maintainers: ${JSON.stringify(formData.maintainers)}
+added_date: ${new Date().toISOString().split('T')[0]}
+---`;
         const fileName = `${formData.name.toLowerCase().replace(/\s+/g, '-')}.yml`;
         const filePath = `${this.projectsPath}/${fileName}`;
 
