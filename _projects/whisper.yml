@@ -1,5 +1,7 @@
 ---
 name: Whisper
+owner: openai
+repo: whisper
 description: Robust Speech Recognition via Large-Scale Weak Supervision
 repository: https://github.com/openai/whisper
 website: 
