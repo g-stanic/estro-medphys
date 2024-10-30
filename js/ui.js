@@ -2,6 +2,7 @@ import { authenticateWithGitHub } from './auth.js';
 import { GITHUB_USERNAME, GITHUB_REPO } from './config.js';
 import { GitHubSubmissionHandler } from './submissionHandler.js';
 import { fetchRepoDetails } from './api.js';
+import { createProjectCard } from './proj.js';
 
 export function addLoginButton() {
     const header = document.querySelector('header');
