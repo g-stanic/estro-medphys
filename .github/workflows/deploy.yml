@@ -6,21 +6,27 @@ on:
       - site  # or your default branch name
   workflow_dispatch:  # Allows manual trigger
 
+permissions:
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # Add this if you have npm dependencies
-      # - name: Install dependencies
-      #   run: npm ci
+      Add this if you have npm dependencies
+      - name: Install dependencies
+        run: npm ci
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
