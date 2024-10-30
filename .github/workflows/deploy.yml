@@ -24,7 +24,6 @@ jobs:
         with:
           node-version: '20'
 
-      Add this if you have npm dependencies
       - name: Install dependencies
         run: npm ci
 
