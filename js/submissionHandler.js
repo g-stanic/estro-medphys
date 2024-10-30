@@ -6,12 +6,6 @@ function encodeContent(content) {
     return btoa(unescape(encodeURIComponent(content)));
 }
 
-// Function to generate a unique branch name
-function generateBranchName(projectName) {
-    const timestamp = new Date().getTime();
-    return `add-project-${projectName.toLowerCase().replace(/\s+/g, '-')}-${timestamp}`;
-}
-
 // Function to create YAML content from form data
 function generateYAMLContent(formData) {
     return `---

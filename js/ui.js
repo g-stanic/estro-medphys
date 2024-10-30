@@ -1,7 +1,7 @@
 import { authenticateWithGitHub } from './auth.js';
-import { addNewProject } from './proj.js';
 import { GITHUB_USERNAME, GITHUB_REPO } from './config.js';
 import { GitHubSubmissionHandler } from './submissionHandler.js';
+import { fetchRepoDetails } from './api.js';
 
 export function addLoginButton() {
     const header = document.querySelector('header');
@@ -110,34 +110,75 @@ export function showOverlay() {
 }
 
 async function handleAddNewProject() {
+
+    const projectName = document.getElementById('projectName').value.trim();
+    const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
+    const projectDescription = document.getElementById('projectDescription').value.trim();
+    const projectUrl = document.getElementById('projectUrl').value.trim();
+    const projectLanguage = document.getElementById('projectLanguage').value.trim();
+    const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
+    const githubUsername = document.getElementById('githubUsername').value.trim();
+    const projectLicense = document.getElementById('projectLicense').value.trim();
+    const orcidId = document.getElementById('orcidId').value.trim();
+    const projectLogo = document.getElementById('projectLogo').files[0];
+
+    if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
+        throw new Error("Please fill in all required fields.");
+    }
+
     const formData = {
-        name: document.getElementById('projectName').value,
-        description: document.getElementById('projectDescription').value,
-        repository: document.getElementById('projectUrl').value,
+        name: projectName,
+        abbreviation: projectAbbreviation,
+        description: projectDescription,
+        repository: projectUrl,
+        language: projectLanguage,
         website: '',  // Add a website field to your form if needed
-        tags: Array.from(document.getElementById('projectKeywords').selectedOptions).map(opt => opt.value),
-        license: 'GPL-3.0',  // You might want to add a license selector to your form
-        maintainers: [document.getElementById('githubUsername').value]
+        tags: projectKeywords,
+        license: projectLicense,
+        submitted_by: [githubUsername]
     };
 
-    const handler = new GitHubSubmissionHandler({
-        owner: GITHUB_USERNAME,
-        repo: GITHUB_REPO,
-        baseBranch: 'dev/projectCommit',
-        projectsPath: '_projects'
-    });
+    try {
+        const urlParts = projectUrl.split('/');
+        const repoName = urlParts.slice(3).join('/');
+        const repoDetails = await fetchRepoDetails(githubUsername, repoName);
 
-    const result = await handler.submitProject(formData);
-    const statusMessage = document.getElementById('addProjectStatus');
-    
-    if (result.success) {
-        statusMessage.textContent = result.message;
-        window.open(result.prUrl, '_blank');
-        const overlay = document.querySelector('.overlay');
-        overlay.style.display = 'none';
+        if (!repoDetails.isContributor) {
+            throw new Error("Only contributors to the repository can add the project.");
+        }
+
+        let logoUrl = '';
+        if (projectLogo) {
+            logoUrl = await uploadLogo(projectLogo);
+        }
+
+        const handler = new GitHubSubmissionHandler({
+            owner: GITHUB_USERNAME,
+            repo: GITHUB_REPO,
+            baseBranch: 'dev/projectCommit',
+            projectsPath: '_projects'
+        });
+
+        const result = await handler.submitProject(formData);
+        const statusMessage = document.getElementById('addProjectStatus');
+        
+        if (result.success) {
+            statusMessage.textContent = result.message;
+            window.open(result.prUrl, '_blank');
+            const overlay = document.querySelector('.overlay');
+            overlay.style.display = 'none';
+        } else {
+            statusMessage.textContent = result.message;
+        }
+
+        // Create and display the new project card
+        const projectsContainer = document.getElementById('projects-container');
+        const newProjectCard = createProjectCard(formData);
+        projectsContainer.appendChild(newProjectCard);
+
         clearAddProjectForm();
-    } else {
-        statusMessage.textContent = result.message;
+    } catch (error) {
+        console.error('Error adding new project:', error);
     }
 }
 

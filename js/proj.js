@@ -64,7 +64,7 @@ async function fetchProjects() {
     return projects;
 }
 
-export function createProjectCard(project) {
+export function createProjectCard(project) { // TODO: Add logo; if abbreviation is not available, skip adding it;
     const card = document.createElement('div');
     card.className = 'project-card';
     card.innerHTML = `
