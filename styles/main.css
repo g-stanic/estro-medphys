@@ -1,11 +1,17 @@
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     margin: 0;
     padding: 0;
+    font-family: Arial;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #24292e;
 }
 
 main {
+    flex: 1;
     padding: 2rem;
 }
 
@@ -110,4 +116,20 @@ main {
     right: 15px;
     cursor: pointer;
     font-size: 24px;
+}
+
+.site-footer {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    text-align: center;
+    border-top: 1px solid #ddd;
+}
+
+.footer-content a {
+    color: #01172F;
+    text-decoration: none;
+}
+
+.footer-content a:hover {
+    color: #FC814A;
 }

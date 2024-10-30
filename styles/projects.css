@@ -20,8 +20,8 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    float: right;
-    width: 80%;
+    /* float: right;
+    width: 80%; */
 }
 
 .project-card {

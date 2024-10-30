@@ -92,6 +92,31 @@ export async function displayProjects() {
     }
 }
 
+async function saveProjectLocally(projectData) {
+    try {
+        const yaml = jsyaml.dump(projectData);
+        const fileName = `${projectData.name.toLowerCase().replace(/\s+/g, '-')}.yml`;
+        
+        // Create a Blob containing the YAML data
+        const blob = new Blob([yaml], { type: 'text/yaml' });
+        
+        // Create a download link
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = fileName;
+        
+        // Trigger download
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        
+        return { success: true, message: 'Project saved locally' };
+    } catch (error) {
+        console.error('Error saving project locally:', error);
+        return { success: false, message: error.message };
+    }
+}
+
 export async function addNewProject() {
     const projectName = document.getElementById('projectName').value.trim();
     const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
@@ -137,17 +162,27 @@ export async function addNewProject() {
             logo: logoUrl
         };
 
-        projects.push(newProject);
+        // Check if we're in development/testing mode
+        const isTestMode = true;
 
-        // Create and display the new project card
-        const projectsContainer = document.getElementById('projects-container');
-        const newProjectCard = createProjectCard(newProject);
-        projectsContainer.appendChild(newProjectCard);
+        let result;
+        if (isTestMode) {
+            result = await saveProjectLocally(newProject);
+        } else {
+            // Existing GitHub submission logic
+            projects.push(newProject);
+            await updateGitHubRepository(projects);
+            result = { success: true };
+        }
 
-        // Update the GitHub repository with the new project
-        await updateGitHubRepository(projects);
+        if (result.success) {
+            // Create and display the new project card
+            const projectsContainer = document.getElementById('projects-container');
+            const newProjectCard = createProjectCard(newProject);
+            projectsContainer.appendChild(newProjectCard);
+        }
 
-        return { success: true };
+        return result;
     } catch (error) {
         console.error('Error adding new project:', error);
         throw error;
