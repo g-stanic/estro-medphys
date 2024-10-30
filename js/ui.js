@@ -1,5 +1,8 @@
 import { authenticateWithGitHub } from './auth.js';
-import { addNewProject } from './proj.js';
+import { GITHUB_USERNAME, GITHUB_REPO } from './config.js';
+import { GitHubSubmissionHandler } from './submissionHandler.js';
+import { fetchRepoDetails } from './api.js';
+import { createProjectCard, uploadLogo } from './proj.js';
 
 export function addLoginButton() {
     const header = document.querySelector('header');
@@ -34,6 +37,11 @@ export function createOverlay() {
                 <option value="dosimetry">Dosimetry</option>
                 <option value="quality-assurance">Quality Assurance</option>
                 <!-- Add more options as needed -->
+            </select>
+            <select id="projectLicense">
+                <option value="GPL-3.0">GPL-3.0</option>
+                <option value="MIT">MIT</option>
+                <option value="Apache-2.0">Apache-2.0</option>
             </select>
             
             <!-- New logo input field -->
@@ -102,15 +110,87 @@ export function showOverlay() {
     });
 }
 
-function handleAddNewProject() {
-    addNewProject().then(result => {
+async function handleAddNewProject() {
+
+    const projectName = document.getElementById('projectName').value.trim();
+    const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
+    const projectDescription = document.getElementById('projectDescription').value.trim();
+    const projectUrl = document.getElementById('projectUrl').value.trim();
+    const projectLanguage = document.getElementById('projectLanguage').value.trim();
+    const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
+    const githubUsername = document.getElementById('githubUsername').value.trim();
+    const projectLicense = document.getElementById('projectLicense').value.trim();
+    const orcidId = document.getElementById('orcidId').value.trim();
+    const projectLogo = document.getElementById('projectLogo').files[0];
+
+    if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
+        throw new Error("Please fill in all required fields.");
+    }
+
+    const formData = {
+        name: projectName,
+        abbreviation: projectAbbreviation,
+        description: projectDescription,
+        repository: projectUrl,
+        language: projectLanguage,
+        website: '',  // Add a website field to your form if needed
+        tags: projectKeywords,
+        license: projectLicense,
+        submitted_by: [githubUsername]
+    };
+
+    try {
+        const urlParts = projectUrl.split('/');
+        const repoName = urlParts.slice(3).join('/');
+        const repoDetails = await fetchRepoDetails(githubUsername, repoName);
+
+        if (!repoDetails.isContributor) {
+            throw new Error("Only contributors to the repository can add the project.");
+        }
+
+        let logoUrl = '';
+        if (projectLogo) {
+            logoUrl = await uploadLogo(projectLogo);
+        }
+
+        const handler = new GitHubSubmissionHandler({
+            owner: GITHUB_USERNAME,
+            repo: GITHUB_REPO,
+            baseBranch: 'dev/projectCommit',
+            projectsPath: '_projects'
+        });
+
+        const result = await handler.submitProject(formData);
         const statusMessage = document.getElementById('addProjectStatus');
-        if (result && result.success) {
-            statusMessage.textContent = 'Project added successfully!';
+        
+        if (result.success) {
+            statusMessage.textContent = result.message;
+            window.open(result.prUrl, '_blank');
             const overlay = document.querySelector('.overlay');
             overlay.style.display = 'none';
-        } else if (result && result.error) {
-            statusMessage.textContent = result.error;
+        } else {
+            statusMessage.textContent = result.message;
         }
-    });
+
+        // Create and display the new project card
+        const projectsContainer = document.getElementById('projects-container');
+        const newProjectCard = createProjectCard(formData);
+        projectsContainer.appendChild(newProjectCard);
+
+        clearAddProjectForm();
+    } catch (error) {
+        console.error('Error adding new project:', error);
+    }
+}
+
+function clearAddProjectForm() {
+    document.getElementById('projectName').value = '';
+    document.getElementById('projectAbbreviation').value = '';
+    document.getElementById('projectDescription').value = '';
+    document.getElementById('projectUrl').value = '';
+    document.getElementById('projectLanguage').value = '';
+    document.getElementById('projectKeywords').selectedIndex = -1;
+    document.getElementById('githubUsername').value = '';
+    document.getElementById('orcidId').value = '';
+    document.getElementById('projectLogo').value = '';
 }

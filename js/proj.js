@@ -1,46 +1,70 @@
-import { fetchRepoDetails } from './api.js';
+import { fetchRepoDetails, updateGitHubRepository } from './api.js';
+import { GITHUB_USERNAME, GITHUB_REPO} from './config.js';
+import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
+import jsyaml from 'https://cdn.skypack.dev/js-yaml';
 
-// List of projects to display
-export let projects = [
-    {
-        name: "Whisper",
-        owner: "openai",
-        repo: "whisper",
-        description: "Robust Speech Recognition via Large-Scale Weak Supervision",
-        language: "Python",
-        stars: 21000,
-        url: "https://github.com/openai/whisper"
-    },
-    {
-        name: "TensorFlow",
-        owner: "tensorflow",
-        repo: "tensorflow",
-        description: "An open-source machine learning framework for everyone",
-        language: "C++",
-        stars: 166000,
-        url: "https://github.com/tensorflow/tensorflow"
-    },
-    {
-        name: "React",
-        owner: "facebook",
-        repo: "react",
-        description: "A declarative, efficient, and flexible JavaScript library for building user interfaces.",
-        language: "JavaScript",
-        stars: 190000,
-        url: "https://github.com/facebook/react"
-    },
-    {
-        name: "LLaMA",
-        owner: "meta",
-        repo: "llama",
-        description: "Large Language Model Meta AI",
-        language: "Python",
-        stars: 21000,
-        url: "https://github.com/meta/llama"
+// Initialize Octokit without authentication for now
+export const octokit = new Octokit();
+
+let projects = [];
+
+async function fetchProjects() {
+    try {
+        // Get all files from the _projects directory
+        const response = await octokit.repos.getContent({
+            owner: GITHUB_USERNAME,
+            repo: GITHUB_REPO,
+            path: '_projects',
+            ref: 'dev/projectCommit'   
+        });
+
+        console.log('Response received:', response);
+
+        if (!response.data) {
+            throw new Error('No data found in the response');
+        }
+
+        // Filter for .yml files only
+        const ymlFiles = response.data.filter(file => file.name.endsWith('.yml'));
+        
+        // Fetch and parse each YAML file
+        const projectPromises = ymlFiles.map(async file => {
+            const fileContent = await octokit.repos.getContent({
+                owner: GITHUB_USERNAME,
+                repo: GITHUB_REPO,
+                path: file.path,
+                ref: 'dev/projectCommit'
+            });
+
+            // Decode the base64 content
+            const content = atob(fileContent.data.content);
+            
+            // Remove any leading/trailing document separators and whitespace
+            const cleanContent = content.replace(/^---\n/, '').replace(/\n---$/, '').trim();
+            
+            // Parse YAML content
+            const projectData = jsyaml.load(cleanContent);
+            
+            return {
+                ...projectData,
+                id: file.name.replace('.yml', '')
+            };
+        });
+
+        // Wait for all projects to be fetched and parsed
+        projects = await Promise.all(projectPromises);
+
+    } catch (error) {
+        console.error('Error in fetchProjects:', error);
+        if (error.status === 404) {
+            console.error('Repository or directory not found. Check your GitHub username, repo name, and path.');
+        }
+        throw error;
     }
-];
+    return projects;
+}
 
-export function createProjectCard(project) {
+export function createProjectCard(project) { // TODO: Add logo; if abbreviation is not available, skip adding it;
     const card = document.createElement('div');
     card.className = 'project-card';
     card.innerHTML = `
@@ -52,83 +76,82 @@ export function createProjectCard(project) {
     return card;
 }
 
-export function displayProjects() {
-    const projectsContainer = document.getElementById('projects-container');
-    projectsContainer.innerHTML = ''; // Clear existing content
-    projects.forEach(project => {
-        const projectCard = createProjectCard(project);
-        projectsContainer.appendChild(projectCard);
-    });
+export async function displayProjects() {
+    try {
+        projects = await fetchProjects();
+        const projectsContainer = document.getElementById('projects-container');
+        projectsContainer.innerHTML = ''; // Clear existing content
+        projects.forEach(project => {
+            const projectCard = createProjectCard(project);
+            projectsContainer.appendChild(projectCard);
+        });
+    } catch (error) {
+        console.error('Error displaying projects:', error.message);
+        const projectsContainer = document.getElementById('projects-container');
+        projectsContainer.innerHTML = `<p>Error loading projects: ${error.message}</p>`;
+    }
 }
 
-export function addProject(newProject) {
-    projects.push(newProject);
-    // saveProjects();
-    displayProjects();
-}
+export async function addNewProject() {
+    const projectName = document.getElementById('projectName').value.trim();
+    const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
+    const projectDescription = document.getElementById('projectDescription').value.trim();
+    const projectUrl = document.getElementById('projectUrl').value.trim();
+    const projectLanguage = document.getElementById('projectLanguage').value.trim();
+    const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
+    const githubUsername = document.getElementById('githubUsername').value.trim();
+    const orcidId = document.getElementById('orcidId').value.trim();
+    const projectLogo = document.getElementById('projectLogo').files[0];
 
-// export function saveProjects() {
-//     localStorage.setItem('customProjects', JSON.stringify(projects.slice(4))); // Save only custom projects
-// }
+    if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
+        throw new Error("Please fill in all required fields.");
+    }
 
-// export function loadProjects() {
-//     const customProjects = JSON.parse(localStorage.getItem('customProjects')) || [];
-//     projects = [...projects.slice(0, 4), ...customProjects]; // Combine default and custom projects
-// }
+    if (!GITHUB_CLIENT_ID) {
+        throw new Error('GitHub client ID is not available');
+    }
 
-export function addNewProject() {
-    return new Promise(async (resolve, reject) => {
-        const projectName = document.getElementById('projectName').value.trim();
-        const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
-        const projectDescription = document.getElementById('projectDescription').value.trim();
-        const projectUrl = document.getElementById('projectUrl').value.trim();
-        const projectLanguage = document.getElementById('projectLanguage').value.trim();
-        const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
-        const githubUsername = document.getElementById('githubUsername').value.trim();
-        const orcidId = document.getElementById('orcidId').value.trim();
-        const projectLogo = document.getElementById('projectLogo').files[0];
-        const repoStatus = document.getElementById('repoStatus');
+    try {
+        const urlParts = projectUrl.split('/');
+        const repoName = urlParts.slice(3).join('/');
+        const repoDetails = await fetchRepoDetails(githubUsername, repoName);
 
-        if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
-            return resolve({ success: false, error: "Please fill in all required fields." });
+        if (!repoDetails.isContributor) {
+            throw new Error("Only contributors to the repository can add the project.");
         }
 
-        try {
-            const urlParts = projectUrl.split('/');
-            const repoName = urlParts.slice(3).join('/');
-            const repoDetails = await fetchRepoDetails(githubUsername, repoName);
-
-            if (!repoDetails.isContributor) {
-                return resolve({ success: false, error: "Only contributors to the repository can add the project." });
-            }
-        } catch (error) {
-            return resolve({ success: false, error: "Error: " + error.message });
+        let logoUrl = '';
+        if (projectLogo) {
+            logoUrl = await uploadLogo(projectLogo);
         }
 
-        try {
-            let logoUrl = '';
-            if (projectLogo) {
-                logoUrl = await uploadLogo(projectLogo);
-            }
+        const newProject = {
+            name: projectName,
+            abbreviation: projectAbbreviation,
+            description: projectDescription,
+            url: projectUrl,
+            language: projectLanguage,
+            keywords: projectKeywords,
+            owner: githubUsername,
+            orcidId: orcidId,
+            logo: logoUrl
+        };
 
-            const newProject = {
-                name: projectName,
-                abbreviation: projectAbbreviation,
-                description: projectDescription,
-                url: projectUrl,
-                language: projectLanguage,
-                keywords: projectKeywords,
-                owner: githubUsername,
-                orcidId: orcidId,
-                logo: logoUrl
-            };
+        projects.push(newProject);
 
-            addProject(newProject);
-            return resolve({ success: true });
-        } catch (error) {
-            return resolve({ success: false, error: "Error: " + error.message });
-        }
-    });
+        // Create and display the new project card
+        const projectsContainer = document.getElementById('projects-container');
+        const newProjectCard = createProjectCard(newProject);
+        projectsContainer.appendChild(newProjectCard);
+
+        // Update the GitHub repository with the new project
+        await updateGitHubRepository(projects);
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error adding new project:', error);
+        throw error;
+    }
 }
 
 async function uploadLogo(file) {
