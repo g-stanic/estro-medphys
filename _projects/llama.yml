@@ -1,0 +1,9 @@
+---
+name: LLaMA
+owner: meta
+repo: llama
+description: Large Language Model Meta AI
+language: Python
+stars: 21000
+url: https://github.com/meta/llama 
+---
