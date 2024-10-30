@@ -63,17 +63,6 @@ export function createOverlay() {
         overlay.style.display = 'none';
     });
 
-    // Add event listener to fetch project language from GitHub
-    // const githubUsernameInput = overlay.querySelector('#githubUsername');
-    // const projectNameInput = overlay.querySelector('#projectName');
-    // const projectLanguageInput = overlay.querySelector('#projectLanguage');
-
-    // githubUsernameInput.addEventListener('blur', () => {
-    //     if (githubUsernameInput.value && projectNameInput.value) {
-    //         fetchProjectLanguage(githubUsernameInput.value, projectNameInput.value, projectLanguageInput);
-    //     }
-    // });
-
     return overlay;
 }
 
@@ -156,7 +145,7 @@ async function handleAddNewProject() {
         const handler = new GitHubSubmissionHandler({
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
-            baseBranch: 'dev/projectCommit',
+            baseBranch: 'site',
             projectsPath: '_projects'
         });
 

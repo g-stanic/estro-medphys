@@ -15,7 +15,7 @@ async function fetchProjects() {
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
             path: '_projects',
-            ref: 'dev/projectCommit'   
+            ref: 'site'   
         });
 
         console.log('Response received:', response);
@@ -33,7 +33,7 @@ async function fetchProjects() {
                 owner: GITHUB_USERNAME,
                 repo: GITHUB_REPO,
                 path: file.path,
-                ref: 'dev/projectCommit'
+                ref: 'site'
             });
 
             // Decode the base64 content
@@ -154,7 +154,7 @@ export async function addNewProject() {
     }
 }
 
-async function uploadLogo(file) {
+export async function uploadLogo(file) {
     // In a real application, you would upload the file to a server here
     // For this example, we'll use a data URL
     return new Promise((resolve, reject) => {
