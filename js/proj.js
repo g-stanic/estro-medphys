@@ -164,3 +164,5 @@ async function uploadLogo(file) {
         reader.readAsDataURL(file);
     });
 }
+
+// Test
