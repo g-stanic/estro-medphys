@@ -170,7 +170,7 @@ export async function addNewProject() {
 
         let logoUrl = '';
         if (projectLogo) {
-            logoUrl = await uploadLogo(projectLogo);
+            logoUrl = await uploadLogo(projectLogo, projectName);
         }
 
         const newProject = {

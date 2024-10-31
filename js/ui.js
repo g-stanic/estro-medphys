@@ -112,7 +112,7 @@ async function handleAddNewProject() {
     const orcidId = document.getElementById('orcidId').value.trim();
     const projectLogo = document.getElementById('projectLogo').files[0];
 
-    if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
+    if (!projectName || !projectUrl || !githubUsername) {
         throw new Error("Please fill in all required fields.");
     }
 
