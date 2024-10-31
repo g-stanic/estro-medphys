@@ -27,6 +27,7 @@ export async function handleAuthCode(code) {
                 if (loginButton) {
                     loginButton.style.display = 'none';
                 }
+                updateOctokit();
                 console.log('User authenticated successfully');
             }
         } catch (error) {

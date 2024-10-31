@@ -3,9 +3,20 @@ import { GITHUB_USERNAME, GITHUB_REPO} from './config.js';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 import jsyaml from 'https://cdn.skypack.dev/js-yaml';
 import { getGitLogoUrl, generateLogoPath } from './logoUtils.js';
+import { getGitHubToken } from './auth.js';
 
 // Initialize Octokit without authentication for now
-export const octokit = new Octokit();
+export const octokit = new Octokit({
+    auth: getGitHubToken() || undefined
+});
+
+// Re-initialize octokit when token changes
+export function updateOctokit() {
+    const token = getGitHubToken();
+    if (token) {
+        octokit.auth = token;
+    }
+}
 
 let projects = [];
 

@@ -116,6 +116,11 @@ async function handleAddNewProject() {
         throw new Error("Please fill in all required fields.");
     }
 
+    let logoUrl = '';
+    if (projectLogo) {
+        logoUrl = await uploadLogo(projectLogo);
+    }
+
     const formData = {
         name: projectName,
         abbreviation: projectAbbreviation,
@@ -125,6 +130,7 @@ async function handleAddNewProject() {
         website: '',  // Add a website field to your form if needed
         tags: projectKeywords,
         license: projectLicense,
+        logo: logoUrl,
         submitted_by: [githubUsername]
     };
 
@@ -135,11 +141,6 @@ async function handleAddNewProject() {
 
         if (!repoDetails.isContributor) {
             throw new Error("Only contributors to the repository can add the project.");
-        }
-
-        let logoUrl = '';
-        if (projectLogo) {
-            logoUrl = await uploadLogo(projectLogo);
         }
 
         const handler = new GitHubSubmissionHandler({
