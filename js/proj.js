@@ -2,26 +2,18 @@ import { fetchRepoDetails } from './api.js';
 import { GITHUB_USERNAME, GITHUB_REPO} from './config.js';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 import jsyaml from 'https://cdn.skypack.dev/js-yaml';
-import { getGitLogoUrl, generateLogoPath } from './logoUtils.js';
+import { getGitLogoUrl} from './logoUtils.js';
 import { getGitHubToken } from './auth.js';
-
-// Initialize Octokit without authentication for now
-export const octokit = new Octokit({
-    auth: getGitHubToken() || undefined
-});
-
-// Re-initialize octokit when token changes
-export function updateOctokit() {
-    const token = getGitHubToken();
-    if (token) {
-        octokit.auth = token;
-    }
-}
+import { GitHubSubmissionHandler } from './submissionHandler.js';
+import { clearAddProjectForm } from './ui.js';
 
 let projects = [];
 
 async function fetchProjects() {
     try {
+        // Create a basic unauthenticated Octokit instance
+        const octokit = new Octokit();
+        
         // Get all files from the _projects directory
         const response = await octokit.repos.getContent({
             owner: GITHUB_USERNAME,
@@ -115,32 +107,37 @@ export async function displayProjects() {
     }
 }
 
-async function saveProjectLocally(projectData) {
-    try {
-        const yaml = jsyaml.dump(projectData);
-        const fileName = `${projectData.name.toLowerCase().replace(/\s+/g, '-')}.yml`;
+// async function saveProjectLocally(projectData) {
+//     try {
+//         const yaml = jsyaml.dump(projectData);
+//         const fileName = `${projectData.name.toLowerCase().replace(/\s+/g, '-')}.yml`;
         
-        // Create a Blob containing the YAML data
-        const blob = new Blob([yaml], { type: 'text/yaml' });
+//         // Create a Blob containing the YAML data
+//         const blob = new Blob([yaml], { type: 'text/yaml' });
         
-        // Create a download link
-        const downloadLink = document.createElement('a');
-        downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = fileName;
+//         // Create a download link
+//         const downloadLink = document.createElement('a');
+//         downloadLink.href = URL.createObjectURL(blob);
+//         downloadLink.download = fileName;
         
-        // Trigger download
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
+//         // Trigger download
+//         document.body.appendChild(downloadLink);
+//         downloadLink.click();
+//         document.body.removeChild(downloadLink);
         
-        return { success: true, message: 'Project saved locally' };
-    } catch (error) {
-        console.error('Error saving project locally:', error);
-        return { success: false, message: error.message };
-    }
-}
+//         return { success: true, message: 'Project saved locally' };
+//     } catch (error) {
+//         console.error('Error saving project locally:', error);
+//         return { success: false, message: error.message };
+//     }
+// }
 
-export async function addNewProject() {
+export async function handleAddNewProject() {
+    const token = getGitHubToken();
+    if (!token) {
+        throw new Error("Please login with GitHub first");
+    }
+
     const projectName = document.getElementById('projectName').value.trim();
     const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
     const projectDescription = document.getElementById('projectDescription').value.trim();
@@ -148,16 +145,37 @@ export async function addNewProject() {
     const projectLanguage = document.getElementById('projectLanguage').value.trim();
     const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
     const githubUsername = document.getElementById('githubUsername').value.trim();
+    const projectLicense = document.getElementById('projectLicense').value.trim();
     const orcidId = document.getElementById('orcidId').value.trim();
     const projectLogo = document.getElementById('projectLogo').files[0];
 
-    if (!projectName || !projectAbbreviation || !projectUrl || !githubUsername) {
+    if (!projectName || !projectUrl || !githubUsername) {
         throw new Error("Please fill in all required fields.");
     }
 
-    if (!GITHUB_CLIENT_ID) {
-        throw new Error('GitHub client ID is not available');
+    let logoUrl = '';
+    if (projectLogo) {
+        const handler = new GitHubSubmissionHandler({
+            owner: GITHUB_USERNAME,
+            repo: GITHUB_REPO,
+            baseBranch: 'site',
+            projectsPath: '_projects'
+        });
+        logoUrl = await handler.uploadLogo(projectLogo, projectName);
     }
+
+    const formData = {
+        name: projectName,
+        abbreviation: projectAbbreviation,
+        description: projectDescription,
+        repository: projectUrl,
+        language: projectLanguage,
+        website: '',
+        tags: projectKeywords,
+        license: projectLicense,
+        logo: logoUrl,
+        submitted_by: [githubUsername]
+    };
 
     try {
         const urlParts = projectUrl.split('/');
@@ -168,79 +186,33 @@ export async function addNewProject() {
             throw new Error("Only contributors to the repository can add the project.");
         }
 
-        let logoUrl = '';
-        if (projectLogo) {
-            logoUrl = await uploadLogo(projectLogo, projectName);
-        }
-
-        const newProject = {
-            name: projectName,
-            abbreviation: projectAbbreviation,
-            description: projectDescription,
-            url: projectUrl,
-            language: projectLanguage,
-            keywords: projectKeywords,
-            owner: githubUsername,
-            orcidId: orcidId,
-            logo: logoUrl
-        };
-
-        // Check if we're in development/testing mode
-        const isTestMode = true;
-
-        let result;
-        if (isTestMode) {
-            result = await saveProjectLocally(newProject);
-        } else {
-            // Existing GitHub submission logic
-            projects.push(newProject);
-            await updateGitHubRepository(projects);
-            result = { success: true };
-        }
-
-        if (result.success) {
-            // Create and display the new project card
-            const projectsContainer = document.getElementById('projects-container');
-            const newProjectCard = createProjectCard(newProject);
-            projectsContainer.appendChild(newProjectCard);
-        }
-
-        return result;
-    } catch (error) {
-        console.error('Error adding new project:', error);
-        throw error;
-    }
-}
-
-export async function uploadLogo(file, projectName) {
-    try {
-        const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
-        const logoPath = generateLogoPath(projectName, fileExtension);
-        
-        // Convert file to base64 for GitHub API
-        const base64Content = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result.split(',')[1]);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-
-        const token = getGitHubToken();
-        const octokit = new Octokit({ auth: token });
-
-        await octokit.repos.createOrUpdateFileContents({
+        const handler = new GitHubSubmissionHandler({
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
-            path: logoPath,
-            message: `Add logo for ${projectName}`,
-            content: base64Content,
-            branch: 'site'
+            baseBranch: 'site',
+            projectsPath: '_projects'
         });
 
-        return logoPath;
+        const result = await handler.submitProject(formData);
+
+        const statusMessage = document.getElementById('addProjectStatus');
+        
+        if (result.success) {
+            statusMessage.textContent = result.message;
+            window.open(result.prUrl, '_blank');
+            const overlay = document.querySelector('.overlay');
+            overlay.style.display = 'none';
+        } else {
+            statusMessage.textContent = result.message;
+        }
+
+        // Create and display the new project card
+        const projectsContainer = document.getElementById('projects-container');
+        const newProjectCard = createProjectCard(formData);
+        projectsContainer.appendChild(newProjectCard);
+
+        clearAddProjectForm();
     } catch (error) {
-        console.error('Error uploading logo:', error);
-        throw error;
+        console.error('Error adding new project:', error);
     }
 }
-// Test

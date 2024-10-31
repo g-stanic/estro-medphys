@@ -1,5 +1,6 @@
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 import { getGitHubToken } from './auth.js';
+import { generateLogoPath } from './logoUtils.js';
 
 // Function to encode content in Base64 (required by GitHub API)
 function encodeContent(content) {
@@ -27,6 +28,12 @@ export class GitHubSubmissionHandler {
         this.repo = options.repo;
         this.baseBranch = options.baseBranch || 'main';
         this.projectsPath = options.projectsPath || '_projects';
+        
+        const token = getGitHubToken();
+        if (!token) {
+            throw new Error('No GitHub token found. Please login first.');
+        }
+        this.github = new Octokit({ auth: token });
     }
 
     async submitProject(formData) {
@@ -64,6 +71,34 @@ export class GitHubSubmissionHandler {
                 success: false,
                 message: 'Error submitting project. Please try again later.'
             };
+        }
+    }
+
+    async uploadLogo(file, projectName) {
+        try {
+            const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
+            const logoPath = generateLogoPath(projectName, fileExtension);
+            
+            const base64Content = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+    
+            await this.github.repos.createOrUpdateFileContents({
+                owner: this.owner,
+                repo: this.repo,
+                path: logoPath,
+                message: `Add logo for ${projectName}`,
+                content: base64Content,
+                branch: this.baseBranch
+            });
+    
+            return logoPath;
+        } catch (error) {
+            console.error('Error uploading logo:', error);
+            throw error;
         }
     }
 }

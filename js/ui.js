@@ -1,8 +1,5 @@
 import { authenticateWithGitHub } from './auth.js';
-import { GITHUB_USERNAME, GITHUB_REPO } from './config.js';
-import { GitHubSubmissionHandler } from './submissionHandler.js';
-import { fetchRepoDetails } from './api.js';
-import { createProjectCard, uploadLogo } from './proj.js';
+import { handleAddNewProject } from './proj.js';
 
 export function addLoginButton() {
     const header = document.querySelector('header');
@@ -99,81 +96,7 @@ export function showOverlay() {
     });
 }
 
-async function handleAddNewProject() {
-
-    const projectName = document.getElementById('projectName').value.trim();
-    const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
-    const projectDescription = document.getElementById('projectDescription').value.trim();
-    const projectUrl = document.getElementById('projectUrl').value.trim();
-    const projectLanguage = document.getElementById('projectLanguage').value.trim();
-    const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
-    const githubUsername = document.getElementById('githubUsername').value.trim();
-    const projectLicense = document.getElementById('projectLicense').value.trim();
-    const orcidId = document.getElementById('orcidId').value.trim();
-    const projectLogo = document.getElementById('projectLogo').files[0];
-
-    if (!projectName || !projectUrl || !githubUsername) {
-        throw new Error("Please fill in all required fields.");
-    }
-
-    let logoUrl = '';
-    if (projectLogo) {
-        logoUrl = await uploadLogo(projectLogo);
-    }
-
-    const formData = {
-        name: projectName,
-        abbreviation: projectAbbreviation,
-        description: projectDescription,
-        repository: projectUrl,
-        language: projectLanguage,
-        website: '',  // Add a website field to your form if needed
-        tags: projectKeywords,
-        license: projectLicense,
-        logo: logoUrl,
-        submitted_by: [githubUsername]
-    };
-
-    try {
-        const urlParts = projectUrl.split('/');
-        const repoName = urlParts.slice(3).join('/');
-        const repoDetails = await fetchRepoDetails(githubUsername, repoName);
-
-        if (!repoDetails.isContributor) {
-            throw new Error("Only contributors to the repository can add the project.");
-        }
-
-        const handler = new GitHubSubmissionHandler({
-            owner: GITHUB_USERNAME,
-            repo: GITHUB_REPO,
-            baseBranch: 'site',
-            projectsPath: '_projects'
-        });
-
-        const result = await handler.submitProject(formData);
-        const statusMessage = document.getElementById('addProjectStatus');
-        
-        if (result.success) {
-            statusMessage.textContent = result.message;
-            window.open(result.prUrl, '_blank');
-            const overlay = document.querySelector('.overlay');
-            overlay.style.display = 'none';
-        } else {
-            statusMessage.textContent = result.message;
-        }
-
-        // Create and display the new project card
-        const projectsContainer = document.getElementById('projects-container');
-        const newProjectCard = createProjectCard(formData);
-        projectsContainer.appendChild(newProjectCard);
-
-        clearAddProjectForm();
-    } catch (error) {
-        console.error('Error adding new project:', error);
-    }
-}
-
-function clearAddProjectForm() {
+export function clearAddProjectForm() {
     document.getElementById('projectName').value = '';
     document.getElementById('projectAbbreviation').value = '';
     document.getElementById('projectDescription').value = '';
