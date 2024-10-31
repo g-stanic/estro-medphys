@@ -64,14 +64,24 @@ async function fetchProjects() {
     return projects;
 }
 
-export function createProjectCard(project) { // TODO: Add logo; if abbreviation is not available, skip adding it;
+export function createProjectCard(project) {
     const card = document.createElement('div');
     card.className = 'project-card';
+    
+    const logoUrl = project.logo ? 
+        getGitLogoUrl(GITHUB_USERNAME, GITHUB_REPO, project.logo) : 
+        'assets/logos/default-logo.png';
+
     card.innerHTML = `
+        <div class="project-logo-container">
+            <img src="${logoUrl}" 
+                 alt="${project.name} logo" 
+                 class="project-logo"
+                 onerror="this.src='assets/logos/default-logo.png'">
+        </div>
         <h2>${project.name}</h2>
-        <p>${project.abbreviation}</p>
-        ${project.logo ? `<img src="${project.logo}" alt="${project.name} logo" class="project-logo">` : ''}
-        <a href="${project.url}" target="_blank">View on GitHub</a>
+        ${project.abbreviation ? `<p class="project-abbreviation">${project.abbreviation}</p>` : ''}
+        <a href="${project.url}" target="_blank" class="view-project">View on GitHub</a>
     `;
     return card;
 }
@@ -189,15 +199,35 @@ export async function addNewProject() {
     }
 }
 
-export async function uploadLogo(file) {
-    // In a real application, you would upload the file to a server here
-    // For this example, we'll use a data URL
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = (e) => reject(new Error('Failed to read file'));
-        reader.readAsDataURL(file);
-    });
-}
+export async function uploadLogo(file, projectName) {
+    try {
+        const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
+        const logoPath = generateLogoPath(projectName, fileExtension);
+        
+        // Convert file to base64 for GitHub API
+        const base64Content = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
 
+        const token = getGitHubToken();
+        const octokit = new Octokit({ auth: token });
+
+        await octokit.repos.createOrUpdateFileContents({
+            owner: GITHUB_USERNAME,
+            repo: GITHUB_REPO,
+            path: logoPath,
+            message: `Add logo for ${projectName}`,
+            content: base64Content,
+            branch: 'site'
+        });
+
+        return logoPath;
+    } catch (error) {
+        console.error('Error uploading logo:', error);
+        throw error;
+    }
+}
 // Test

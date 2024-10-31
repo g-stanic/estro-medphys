@@ -16,6 +16,7 @@ website: ${formData.website || ''}
 tags: ${JSON.stringify(formData.tags)}
 license: ${formData.license}
 maintainers: ${JSON.stringify(formData.maintainers)}
+logo: ${formData.logo || ''}
 added_date: ${new Date().toISOString().split('T')[0]}
 ---`;
 }
