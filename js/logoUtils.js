@@ -7,5 +7,5 @@ export function getGitLogoUrl(owner, repo, path, branch = 'site') {
 
 export function generateLogoPath(projectName, fileExtension) {
     const safeName = projectName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    return `assets/logos/${safeName}${fileExtension}`;
+    return `assets/logos/${safeName}-logo${fileExtension}`;
 }
