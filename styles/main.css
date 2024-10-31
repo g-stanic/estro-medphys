@@ -28,6 +28,7 @@ main {
 }
 
 #addProjectButton {
+    font-size: 14px;
     padding: 10px 20px;
     background-color: #FC814A;
     color: #01172F;

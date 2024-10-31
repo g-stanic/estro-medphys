@@ -5,6 +5,6 @@ repo: tensorflow
 description: An open-source machine learning framework for everyone
 language: C++
 stars: 166000
-logo: ''
+logo: 'assets/logos/tensorflow-logo.png'
 url: https://github.com/tensorflow/tensorflow 
 ---

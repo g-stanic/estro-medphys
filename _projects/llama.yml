@@ -5,6 +5,6 @@ repo: llama
 description: Large Language Model Meta AI
 language: Python
 stars: 21000
-logo: ''
+logo: 'assets/logos/llama-logo.png'
 url: https://github.com/meta/llama 
 ---

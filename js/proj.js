@@ -93,6 +93,7 @@ export function createProjectCard(project) {
         </div>
         <h2>${project.name}</h2>
         ${project.abbreviation ? `<p class="project-abbreviation">${project.abbreviation}</p>` : ''}
+        ${project.description ? `<p class="project-description">${project.description}</p>` : ''}
         <a href="${project.url}" target="_blank" class="view-project">View on GitHub</a>
     `;
     return card;
