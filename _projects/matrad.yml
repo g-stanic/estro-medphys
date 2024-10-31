@@ -1,0 +1,11 @@
+---
+name: matRad
+description: Open source software for radiation treatment planning of intensity-modulated photon, proton, and carbon ion therapy
+repository: https://github.com/e0404/matRad
+website: 
+tags: ["medical-physics","radiation-therapy"]
+license: GPL-3.0
+maintainers: undefined
+logo: assets/logos/matrad-logo.png
+added_date: 2024-10-31
+---
