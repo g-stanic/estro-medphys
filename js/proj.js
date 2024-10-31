@@ -2,6 +2,7 @@ import { fetchRepoDetails } from './api.js';
 import { GITHUB_USERNAME, GITHUB_REPO} from './config.js';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 import jsyaml from 'https://cdn.skypack.dev/js-yaml';
+import { getGitLogoUrl, generateLogoPath } from './logoUtils.js';
 
 // Initialize Octokit without authentication for now
 export const octokit = new Octokit();
