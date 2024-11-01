@@ -1,10 +1,11 @@
 ---
 name: TensorFlow
-owner: tensorflow
-repo: tensorflow
 description: An open-source machine learning framework for everyone
-language: C++
-stars: 166000
-logo: 'assets/logos/tensorflow-logo.png'
-url: https://github.com/tensorflow/tensorflow 
+repository: https://github.com/tensorflow/tensorflow
+website: 
+tags: ["machine-learning","deep-learning"]
+license: Apache-2.0
+maintainers: ["tensorflow"]
+logo: assets/logos/tensorflow-logo.png
+added_date: 2024-10-31
 ---

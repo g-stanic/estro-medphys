@@ -68,9 +68,26 @@ async function fetchProjects() {
     return projects;
 }
 
-export function createProjectCard(project) {
+export async function createProjectCard(project) {
     const card = document.createElement('div');
     card.className = 'project-card';
+    
+    let repoDetails = { hasReadme: false };
+    
+    // Only try to fetch repo details if we have a repository URL
+    if (project.repository) {
+        try {
+            // Extract owner and repo from project URL
+            const urlParts = project.repository.split('/');
+            const owner = urlParts[3];
+            const repo = urlParts[4];
+            
+            // Fetch repo details
+            repoDetails = await fetchRepoDetails(owner, repo);
+        } catch (error) {
+            console.error('Error fetching repo details:', error);
+        }
+    }
     
     const logoUrl = project.logo ? 
         getGitLogoUrl(GITHUB_USERNAME, GITHUB_REPO, project.logo) : 
@@ -86,7 +103,13 @@ export function createProjectCard(project) {
         <h2>${project.name}</h2>
         ${project.abbreviation ? `<p class="project-abbreviation">${project.abbreviation}</p>` : ''}
         ${project.description ? `<p class="project-description">${project.description}</p>` : ''}
-        <a href="${project.url}" target="_blank" class="view-project">View on GitHub</a>
+        <div class="project-indicators">
+            <i class="fas fa-book readme-indicator ${repoDetails.hasReadme ? 'active' : 'inactive'}" 
+               title="${repoDetails.hasReadme ? 'README available' : 'No README found'}"></i>
+        </div>
+        ${project.repository ? 
+            `<a href="${project.repository}" target="_blank" class="view-project">View on GitHub</a>` : 
+            ''}
     `;
     return card;
 }
@@ -96,9 +119,15 @@ export async function displayProjects() {
         projects = await fetchProjects();
         const projectsContainer = document.getElementById('projects-container');
         projectsContainer.innerHTML = ''; // Clear existing content
-        projects.forEach(project => {
-            const projectCard = createProjectCard(project);
-            projectsContainer.appendChild(projectCard);
+        
+        // Create all project cards asynchronously
+        const projectCards = await Promise.all(
+            projects.map(project => createProjectCard(project))
+        );
+        
+        // Add all cards to the container
+        projectCards.forEach(card => {
+            projectsContainer.appendChild(card);
         });
     } catch (error) {
         console.error('Error displaying projects:', error.message);

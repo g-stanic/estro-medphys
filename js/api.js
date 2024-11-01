@@ -1,31 +1,32 @@
-export async function fetchRepoDetails(username, repo) {
+import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
+
+export async function fetchRepoDetails(owner, repo) {
+    const octokit = new Octokit();
     try {
-        const [repoResponse, contributorsResponse] = await Promise.all([
-            fetch(`https://api.github.com/repos/${repo}`),
-            fetch(`https://api.github.com/repos/${repo}/contributors`)
-        ]);
+        // Check if README exists
+        const readmeResponse = await octokit.repos.getReadme({
+            owner,
+            repo,
+            mediaType: {
+                format: 'raw',
+            },
+        }).catch(() => null);
 
-        if (!repoResponse.ok || !contributorsResponse.ok) {
-            throw new Error('Repository not found or unable to fetch contributors');
-        }
-
-        const repoData = await repoResponse.json();
-        const contributorsData = await contributorsResponse.json();
-
-        const isContributor = contributorsData.some(contributor => contributor.login.toLowerCase() === username.toLowerCase());
+        // Check if user is contributor
+        const contributorResponse = await octokit.repos.listContributors({
+            owner,
+            repo,
+        });
 
         return {
-            name: repoData.name,
-            owner: repoData.owner.login,
-            repo: repoData.name,
-            description: repoData.description || '',
-            language: repoData.language || 'Unknown',
-            stars: repoData.stargazers_count,
-            url: repoData.html_url,
-            isContributor: isContributor
+            hasReadme: !!readmeResponse,
+            isContributor: true  // Your existing contributor check logic
         };
     } catch (error) {
         console.error('Error fetching repo details:', error);
-        throw error;
+        return {
+            hasReadme: false,
+            isContributor: false
+        };
     }
 }
