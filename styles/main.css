@@ -1,3 +1,4 @@
+/* Base Layout Styles */
 body {
     min-height: 100vh;
     display: flex;
@@ -15,6 +16,7 @@ main {
     padding: 2rem;
 }
 
+/* Project Management UI */
 .add-project-container {
     display: flex;
     align-items: center;
@@ -43,6 +45,7 @@ main {
     background-color: #cc6639;
 }
 
+/* Modal Overlay and Popup Styles */
 .overlay {
     display: none;
     position: fixed;
@@ -119,6 +122,7 @@ main {
     font-size: 24px;
 }
 
+/* Footer Styling */
 .site-footer {
     background-color: #f8f9fa;
     padding: 1rem;

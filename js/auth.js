@@ -22,19 +22,40 @@ export async function handleAuthCode(code) {
             const data = await response.json();
             if (data.access_token) {
                 sessionStorage.setItem('github_token', data.access_token);
-                
-                const loginButton = document.getElementById('loginButton');
-                if (loginButton) {
-                    loginButton.style.display = 'none';
-                }
-                console.log('User authenticated successfully');
+                return true;
             }
         } catch (error) {
             console.error('Error exchanging code for token:', error);
+            throw error;
         }
+    }
+    return false;
+}
+
+// Get server token for general API operations
+export async function getServerGitHubToken() {
+    try {
+        const response = await fetch(`${PROXY_URL}/github-token`);
+        const data = await response.json();
+        return data.token || null;
+    } catch (error) {
+        console.error('Error fetching GitHub token:', error);
+        return null;
     }
 }
 
-export function getGitHubToken() {
+// Get user token (if they're logged in)
+export function getUserGitHubToken() {
     return sessionStorage.getItem('github_token');
+}
+
+// General purpose token getter - prefers server token for API operations
+export async function getGitHubToken() {
+    const serverToken = await getServerGitHubToken();
+    return serverToken;
+}
+
+// Check if user is authenticated
+export function isUserAuthenticated() {
+    return !!getUserGitHubToken();
 }

@@ -1,16 +1,54 @@
-import { authenticateWithGitHub } from './auth.js';
+import { isUserAuthenticated, authenticateWithGitHub } from './auth.js';
 import { handleAddNewProject } from './proj.js';
 
 export function addLoginButton() {
     const header = document.querySelector('header');
-    
     const loginButton = document.createElement('button');
     loginButton.id = 'loginButton';
     loginButton.className = 'login-button';
-    loginButton.textContent = 'Login with GitHub';
-    loginButton.onclick = authenticateWithGitHub;
+    
+    // Update button text based on auth status
+    updateLoginButtonState(loginButton);
+    
+    loginButton.addEventListener('click', async () => {
+        if (!isUserAuthenticated()) {
+            await authenticateWithGitHub();
+        } else {
+            // Handle logout
+            sessionStorage.removeItem('github_token');
+            updateLoginButtonState(loginButton);
+            
+            // Update add project button status
+            const statusMessage = document.getElementById('addProjectStatus');
+            if (statusMessage) {
+                statusMessage.textContent = '';
+            }
+        }
+    });
 
     header.appendChild(loginButton);
+}
+
+export function updateLoginButtonState(button) {
+    if (isUserAuthenticated()) {
+        button.textContent = 'Logout';
+        button.classList.add('logged-in');
+        
+        // Enable add project button
+        const addProjectButton = document.getElementById('addProjectButton');
+        if (addProjectButton) {
+            addProjectButton.disabled = false;
+        }
+    } else {
+        button.textContent = 'Login with GitHub';
+        button.classList.remove('logged-in');
+        
+        // Disable add project button
+        const addProjectButton = document.getElementById('addProjectButton');
+        if (addProjectButton) {
+            addProjectButton.disabled = true;
+        }
+    }
 }
 
 export function createOverlay() {
@@ -76,6 +114,14 @@ export function createOverlay() {
 // }
 
 export function showOverlay() {
+    // Check authentication before showing overlay
+    if (!isUserAuthenticated()) {
+        const statusMessage = document.getElementById('addProjectStatus');
+        statusMessage.textContent = 'Please login with GitHub first to add a new project';
+        statusMessage.style.color = 'red';
+        return;
+    }
+
     let overlay = document.querySelector('.overlay');
     if (!overlay) {
         overlay = createOverlay();

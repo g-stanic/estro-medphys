@@ -1,4 +1,4 @@
-/* Project cards */
+/* Project Card Layout and Structure */
 .project-card {
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -21,6 +21,7 @@
     max-height: 4.5em; /* 3 lines × 1.5 line height */
 }
 
+/* Project Grid Container */
 #projects-container {
     border: 1px solid #ddd;
     padding: 1rem;
@@ -57,6 +58,7 @@
     text-decoration: underline;
 }
 
+/* Responsive Layout Breakpoints */
 @media (max-width: 768px) {
     .project-card {
         flex-basis: calc(50% - 1rem);
@@ -69,6 +71,7 @@
     }
 }
 
+/* Project Logo Styling */
 .project-logo-container {
     width: 100%;
     max-width: 250px;
@@ -98,6 +101,7 @@
     filter: grayscale(1);
 }
 
+/* Project Status Indicators */
 .project-indicators {
     position: absolute;
     bottom: 1rem;
@@ -124,4 +128,14 @@
 .project-indicators i.active {
     opacity: 1;
     color: #2ea44f;
+}
+
+.project-indicators i.license-indicator.active {
+    color: #fb8f44;  /* Pale orange color */
+    opacity: 1;
+}
+
+.project-indicators i.license-indicator.inactive {
+    opacity: 0.3;
+    color: #586069;
 }

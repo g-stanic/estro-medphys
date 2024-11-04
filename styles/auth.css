@@ -1,19 +1,108 @@
+/* Authentication Button Styles */
 .login-button {
     font-size: 14px;
-    padding: 8px 16px;
-    background-color: #8AC6D0;
+    padding: 10px 20px;
+    background-color: #FC814A;
     color: #01172F;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     position: absolute;
     right: 20px;
-    position: absolute;
     top: 50%;
     transform: translateY(-50%);
+    transition: all 0.3s ease;
 }
 
 .login-button:hover {
+    background-color: #cc6639;
+}
+
+.login-button.logged-in {
     background-color: #63768D;
-    color: #8AC6D0
+    color: #fff;
+}
+
+.login-button.logged-in:hover {
+    background-color: #4a5a6d;
+}
+
+/* Add Project Button and Tooltip */
+#addProjectButton {
+    /* Your existing styles... */
+    opacity: 1;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+#addProjectButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #ccc;
+}
+
+#addProjectButton:disabled:hover {
+    background-color: #ccc;
+}
+
+/* Tooltip Container and Animation */
+#addProjectButton:disabled::after {
+    content: "Please login first";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background-color: #333;
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#addProjectButton:disabled:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Tooltip Arrow Styling */
+#addProjectButton:disabled::before {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#addProjectButton:disabled:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Status Message Components */
+.status-message {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.status-message.error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+
+.status-message.success {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
 }

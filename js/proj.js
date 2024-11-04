@@ -3,17 +3,32 @@ import { GITHUB_USERNAME, GITHUB_REPO} from './config.js';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 import jsyaml from 'https://cdn.skypack.dev/js-yaml';
 import { getGitLogoUrl} from './logoUtils.js';
-import { getGitHubToken } from './auth.js';
+import { getUserGitHubToken, getGitHubToken } from './auth.js';
 import { GitHubSubmissionHandler } from './submissionHandler.js';
 import { clearAddProjectForm } from './ui.js';
 
 let projects = [];
 
+// Initialize Octokit asynchronously
+async function initializeOctokit() {
+    const token = await getGitHubToken();
+    return new Octokit({
+        auth: token
+    });
+}
+
+// Cache and retrieve Octokit instance
+let octokit;
+async function getOctokit() {
+    if (!octokit) {
+        octokit = await initializeOctokit();
+    }
+    return octokit;
+}
+
 async function fetchProjects() {
     try {
-        // Create a basic unauthenticated Octokit instance
-        const octokit = new Octokit();
-        
+        const octokit = await getOctokit();
         // Get all files from the _projects directory
         const response = await octokit.repos.getContent({
             owner: GITHUB_USERNAME,
@@ -62,6 +77,8 @@ async function fetchProjects() {
         console.error('Error in fetchProjects:', error);
         if (error.status === 404) {
             console.error('Repository or directory not found. Check your GitHub username, repo name, and path.');
+        } else if (error.status === 403) {
+            console.error('Authentication error or rate limit exceeded. Please ensure you are logged in.');
         }
         throw error;
     }
@@ -72,17 +89,14 @@ export async function createProjectCard(project) {
     const card = document.createElement('div');
     card.className = 'project-card';
     
-    let repoDetails = { hasReadme: false };
+    let repoDetails = { hasReadme: false, license: null };
     
-    // Only try to fetch repo details if we have a repository URL
     if (project.repository) {
         try {
-            // Extract owner and repo from project URL
             const urlParts = project.repository.split('/');
             const owner = urlParts[3];
             const repo = urlParts[4];
             
-            // Fetch repo details
             repoDetails = await fetchRepoDetails(owner, repo);
         } catch (error) {
             console.error('Error fetching repo details:', error);
@@ -106,6 +120,8 @@ export async function createProjectCard(project) {
         <div class="project-indicators">
             <i class="fas fa-book readme-indicator ${repoDetails.hasReadme ? 'active' : 'inactive'}" 
                title="${repoDetails.hasReadme ? 'README available' : 'No README found'}"></i>
+            <i class="fas fa-balance-scale license-indicator ${repoDetails.license ? 'active' : 'inactive'}" 
+               title="${repoDetails.license ? `License: ${repoDetails.license}` : 'No license found'}"></i>
         </div>
         ${project.repository ? 
             `<a href="${project.repository}" target="_blank" class="view-project">View on GitHub</a>` : 
@@ -136,35 +152,10 @@ export async function displayProjects() {
     }
 }
 
-// async function saveProjectLocally(projectData) {
-//     try {
-//         const yaml = jsyaml.dump(projectData);
-//         const fileName = `${projectData.name.toLowerCase().replace(/\s+/g, '-')}.yml`;
-        
-//         // Create a Blob containing the YAML data
-//         const blob = new Blob([yaml], { type: 'text/yaml' });
-        
-//         // Create a download link
-//         const downloadLink = document.createElement('a');
-//         downloadLink.href = URL.createObjectURL(blob);
-//         downloadLink.download = fileName;
-        
-//         // Trigger download
-//         document.body.appendChild(downloadLink);
-//         downloadLink.click();
-//         document.body.removeChild(downloadLink);
-        
-//         return { success: true, message: 'Project saved locally' };
-//     } catch (error) {
-//         console.error('Error saving project locally:', error);
-//         return { success: false, message: error.message };
-//     }
-// }
-
 export async function handleAddNewProject() {
-    const token = getGitHubToken();
-    if (!token) {
-        throw new Error("Please login with GitHub first");
+    const userToken = getUserGitHubToken();
+    if (!userToken) {
+        throw new Error("Please login with GitHub first to add a new project");
     }
 
     const projectName = document.getElementById('projectName').value.trim();
