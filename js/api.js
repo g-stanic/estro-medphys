@@ -42,15 +42,23 @@ export async function fetchRepoDetails(owner, repo) {
             repo,
         });
 
+        const releases = await octokit.rest.repos.listReleases({
+            owner,
+            repo,
+        });
+
         return {
             hasReadme: !!readmeResponse,
             license: repoResponse.data.license?.spdx_id || null,
+            latestRelease: releases.data[0]?.tag_name || null,
         };
+        
     } catch (error) {
         console.error('Error fetching repo details:', error);
         return {
             hasReadme: false,
-            license: null
+            license: null,
+            latestRelease: null,
         };
     }
 }

@@ -19,7 +19,7 @@ async function initializeOctokit() {
 
 // Cache and retrieve Octokit instance
 let octokit;
-async function getOctokit() {
+export async function getOctokit() {
     if (!octokit) {
         octokit = await initializeOctokit();
     }
@@ -89,7 +89,7 @@ export async function createProjectCard(project) {
     const card = document.createElement('div');
     card.className = 'project-card';
     
-    let repoDetails = { hasReadme: false, license: null };
+    let repoDetails = { hasReadme: false, license: null, latestRelease: null };
     
     if (project.repository) {
         try {
@@ -121,7 +121,9 @@ export async function createProjectCard(project) {
             <i class="fas fa-book readme-indicator ${repoDetails.hasReadme ? 'active' : 'inactive'}" 
                title="${repoDetails.hasReadme ? 'README available' : 'No README found'}"></i>
             <i class="fas fa-balance-scale license-indicator ${repoDetails.license ? 'active' : 'inactive'}" 
-               title="${repoDetails.license ? `License: ${repoDetails.license}` : 'No license found'}"></i>
+                title="${repoDetails.license ? `License: ${repoDetails.license}` : 'No license found'}"></i>
+            <i class="fas fa-tag release-indicator ${repoDetails.latestRelease ? 'active' : 'inactive'}" 
+               title="${repoDetails.latestRelease ? `Latest release: ${repoDetails.latestRelease}` : 'No releases found'}"></i>
         </div>
         ${project.repository ? 
             `<a href="${project.repository}" target="_blank" class="view-project">View on GitHub</a>` : 
@@ -153,15 +155,35 @@ export async function displayProjects() {
 }
 
 export async function handleAddNewProject() {
+    // This might not be necessary anymore since the button is disabled when not logged in
     const userToken = getUserGitHubToken();
     if (!userToken) {
         throw new Error("Please login with GitHub first to add a new project");
     }
+    //////////////////////////////////////////////////////////////
+
+    clearFieldErrors();
 
     const projectName = document.getElementById('projectName').value.trim();
     const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
     const projectDescription = document.getElementById('projectDescription').value.trim();
     const projectUrl = document.getElementById('projectUrl').value.trim();
+
+    // Check if project already exists
+    const exists = await checkProjectExists(projectUrl);
+    if (exists) {
+        const errorDiv = document.getElementById('overlayError');
+        errorDiv.textContent = 'This project has already been added to the repository.';
+        errorDiv.classList.add('show');
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+    }
+
+    // Clear any existing error message
+    const errorDiv = document.getElementById('overlayError');
+    errorDiv.textContent = '';
+    errorDiv.classList.remove('show');
+
     const projectLanguage = document.getElementById('projectLanguage').value.trim();
     const projectKeywords = Array.from(document.getElementById('projectKeywords').selectedOptions).map(option => option.value);
     const githubUsername = document.getElementById('githubUsername').value.trim();
@@ -169,8 +191,23 @@ export async function handleAddNewProject() {
     const orcidId = document.getElementById('orcidId').value.trim();
     const projectLogo = document.getElementById('projectLogo').files[0];
 
-    if (!projectName || !projectUrl || !githubUsername) {
-        throw new Error("Please fill in all required fields.");
+    let hasError = false;
+
+    // Check each required field
+    if (!projectName) {
+        markFieldError('projectName');
+        hasError = true;
+    }
+    if (!projectUrl) {
+        markFieldError('projectUrl');
+        hasError = true;
+    }
+    if (!githubUsername) {
+        markFieldError('githubUsername');
+        hasError = true;
+    }
+    if (hasError) {
+        return;
     }
 
     let logoUrl = '';
@@ -235,4 +272,37 @@ export async function handleAddNewProject() {
     } catch (error) {
         console.error('Error adding new project:', error);
     }
+}
+
+async function checkProjectExists(projectUrl) {
+    try {
+        const projects = await fetchProjects();
+        return projects.some(project => project.repository === projectUrl);
+    } catch (error) {
+        console.error('Error checking project existence:', error);
+        return false;
+    }
+}
+
+function markFieldError(fieldId) {
+    const field = document.getElementById(fieldId);
+    const wrapper = field.closest('.input-wrapper') || field.parentNode;
+    field.classList.add('error-field');
+    
+    // Create error message if it doesn't exist
+    if (!document.getElementById(`${fieldId}-error`)) {
+        const errorMsg = document.createElement('div');
+        errorMsg.id = `${fieldId}-error`;
+        errorMsg.className = 'error-message';
+        errorMsg.textContent = 'Please fill in';
+        wrapper.insertBefore(errorMsg, wrapper.firstChild);
+    }
+}
+
+function clearFieldErrors() {
+    const errorFields = document.querySelectorAll('.error-field');
+    const errorMessages = document.querySelectorAll('.error-message');
+    
+    errorFields.forEach(field => field.classList.remove('error-field'));
+    errorMessages.forEach(msg => msg.remove());
 }

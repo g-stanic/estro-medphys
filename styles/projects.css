@@ -139,3 +139,7 @@
     opacity: 0.3;
     color: #586069;
 }
+
+.project-indicators i.release-indicator.active {
+    color: #0366d6;
+}

@@ -73,8 +73,12 @@ main {
 }
 
 .popup h2, .popup h3 {
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+.popup h3:first-child {
     margin-top: 0;
-    margin-bottom: 15px;
 }
 
 .popup input, .popup textarea, .popup select {
@@ -85,6 +89,7 @@ main {
 }
 
 .popup textarea {
+    font-family: inherit;
     height: 100px;
     resize: vertical;
 }
@@ -137,4 +142,45 @@ main {
 
 .footer-content a:hover {
     color: #FC814A;
+}
+
+.overlay-error {
+    display: none;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.overlay-error.show {
+    display: block;
+}
+
+.error-field {
+    border: 2px solid #721c24 !important;
+    background-color: #fff0f0;
+    transition: all 0.3s ease;
+}
+
+.error-message {
+    color: #721c24;
+    font-size: 0.8em;
+    margin-bottom: 2px;
+    position: absolute;
+    right: 0;
+    top: -10px;
+}
+
+.popup input, .popup textarea, .popup select {
+    position: relative;
+    margin-top: 10px;  /* Add space above for error message */
+}
+
+.popup .input-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 10px;
 }

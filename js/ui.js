@@ -1,5 +1,10 @@
 import { isUserAuthenticated, authenticateWithGitHub } from './auth.js';
 import { handleAddNewProject } from './proj.js';
+import { getOctokit } from './proj.js';
+
+// We should add a button that allows to open a project in a new overlay or window
+// that will show all the information about the project.
+// It will also allow the person who added the project to edit the project information.
 
 export function addLoginButton() {
     const header = document.querySelector('header');
@@ -52,18 +57,29 @@ export function updateLoginButtonState(button) {
 }
 
 export function createOverlay() {
+    // TODO: Add identifiers/references.
+    // TODO: There needs to be an error message if the project already exists
+    // TODO: The error message should disappear when the user clicks on the overlay again.
+    // TODO: An error message should appear if the project is not found.
+    // TODO: An error message should appear in the overlay if the user didn't
+    // add all the necessary info
     const overlay = document.createElement('div');
     overlay.className = 'overlay';
     overlay.innerHTML = `
         <div class="popup">
             <span class="close-btn">&times;</span>
             <h2>Add New Project</h2>
+            <div id="overlayError" class="overlay-error"></div>
             
             <h3>Section 1: Project</h3>
-            <input type="text" id="projectName" placeholder="Full project name">
+            <div class="input-wrapper">
+                <input type="text" id="projectName" placeholder="Full project name">
+            </div>
             <input type="text" id="projectAbbreviation" placeholder="Project abbreviation">
             <textarea id="projectDescription" placeholder="Project description"></textarea>
-            <input type="url" id="projectUrl" placeholder="Project URL">
+            <div class="input-wrapper">
+                <input type="url" id="projectUrl" placeholder="Project URL">
+            </div>
             <input type="text" id="projectLanguage" placeholder="Project language">
             <select id="projectKeywords" multiple>
                 <option value="medical-physics">Medical Physics</option>
@@ -78,13 +94,19 @@ export function createOverlay() {
                 <option value="MIT">MIT</option>
                 <option value="Apache-2.0">Apache-2.0</option>
             </select>
+            <input type="text" id="projectStatus" placeholder="Development status">
+
+            <h3>Section 2: Funding information</h3>
+            <input type="text" id="fundingInfo" placeholder="Funding information">
             
-            <!-- New logo input field -->
+            <h3>Section 3: Upload project logo</h3>
             <input type="file" id="projectLogo" accept="image/*">
-            <label for="projectLogo">Upload Project Logo</label>
             
-            <h3>Section 2: Contact Info</h3>
-            <input type="text" id="githubUsername" placeholder="GitHub Username">
+            <h3>Section 4: Submitter</h3>
+            <input type="text" id="First and last name" placeholder="First and last name">
+            <div class="input-wrapper">
+                <input type="text" id="githubUsername" placeholder="GitHub Username">
+            </div>
             <input type="text" id="orcidId" placeholder="ORCID ID (if applicable)">
             
             <button id="submitRepo">Add Project</button>
@@ -98,20 +120,10 @@ export function createOverlay() {
         overlay.style.display = 'none';
     });
 
+    document.getElementById('projectUrl').addEventListener('change', handleProjectUrlChange);
+
     return overlay;
 }
-
-// async function fetchProjectLanguage(username, repo, languageInput) {
-//     try {
-//         const response = await fetch(`https://api.github.com/repos/${username}/${repo}`);
-//         if (response.ok) {
-//             const data = await response.json();
-//             languageInput.value = data.language || '';
-//         }
-//     } catch (error) {
-//         console.error('Error fetching project language:', error);
-//     }
-// }
 
 export function showOverlay() {
     // Check authentication before showing overlay
@@ -152,4 +164,76 @@ export function clearAddProjectForm() {
     document.getElementById('githubUsername').value = '';
     document.getElementById('orcidId').value = '';
     document.getElementById('projectLogo').value = '';
+}
+
+async function fetchRepoLanguage(owner, repo) {
+    try {
+        const octokit = await getOctokit();
+        const response = await octokit.repos.listLanguages({
+            owner,
+            repo
+        });
+        
+        // Get the language with the most bytes
+        const languages = response.data;
+        const primaryLanguage = Object.entries(languages)
+            .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
+            
+        return primaryLanguage;
+    } catch (error) {
+        console.error('Error fetching repository language:', error);
+        return '';
+    }
+}
+
+async function fetchRepoDescription(owner, repo) {
+    try {
+        const octokit = await getOctokit();
+        const response = await octokit.repos.get({
+            owner,
+            repo
+        });
+            
+        return response.data.description || '';
+    } catch (error) {
+        console.error('Error fetching repository description:', error);
+        return '';
+    }
+}
+
+// Add an event listener function to handle URL changes
+async function handleProjectUrlChange() {
+    const projectUrl = document.getElementById('projectUrl').value.trim();
+    const languageInput = document.getElementById('projectLanguage');
+    const descriptionInput = document.getElementById('projectDescription');
+    
+    if (projectUrl) {
+        try {
+            const urlParts = projectUrl.split('/');
+            if (urlParts.length >= 5) {
+                const owner = urlParts[3];
+                const repo = urlParts[4];
+                const language = await fetchRepoLanguage(owner, repo);
+                if (language) {
+                    languageInput.value = language;
+                }
+            }
+        } catch (error) {
+            console.error('Error updating language:', error);
+        }
+
+        try {
+            const urlParts = projectUrl.split('/');
+            if (urlParts.length >= 5) {
+                const owner = urlParts[3];
+                const repo = urlParts[4];
+                const description = await fetchRepoDescription(owner, repo);
+                if (description) {
+                    descriptionInput.value = description;
+                }
+            }
+        } catch (error) {
+            console.error('Error updating language:', error);
+        }
+    }
 }
