@@ -28,12 +28,15 @@ export class GitHubSubmissionHandler {
         this.repo = options.repo;
         this.baseBranch = options.baseBranch || 'main';
         this.projectsPath = options.projectsPath || '_projects';
-        
-        const token = getGitHubToken();
+    }
+
+    async initialize() {
+        const token = await getGitHubToken();
         if (!token) {
             throw new Error('No GitHub token found. Please login first.');
         }
         this.github = new Octokit({ auth: token });
+        return this;
     }
 
     async submitProject(formData) {

@@ -212,12 +212,12 @@ export async function handleAddNewProject() {
 
     let logoUrl = '';
     if (projectLogo) {
-        const handler = new GitHubSubmissionHandler({
+        const handler = await new GitHubSubmissionHandler({
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
             baseBranch: 'site',
             projectsPath: '_projects'
-        });
+        }).initialize();
         logoUrl = await handler.uploadLogo(projectLogo, projectName);
     }
 
@@ -243,12 +243,12 @@ export async function handleAddNewProject() {
             throw new Error("Only contributors to the repository can add the project.");
         }
 
-        const handler = new GitHubSubmissionHandler({
+        const handler = await new GitHubSubmissionHandler({
             owner: GITHUB_USERNAME,
             repo: GITHUB_REPO,
             baseBranch: 'site',
             projectsPath: '_projects'
-        });
+        }).initialize();
 
         const result = await handler.submitProject(formData);
 
