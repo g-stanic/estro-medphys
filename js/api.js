@@ -48,7 +48,6 @@ export async function fetchRepoDetails(owner, repo) {
             octokit.rest.repos.listContributors({
                 owner,
                 repo,
-                per_page: 10  // Limit to top 10 contributors
             }).catch(() => ({ data: [] }))
         ]);
 
