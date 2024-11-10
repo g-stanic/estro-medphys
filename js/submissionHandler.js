@@ -82,22 +82,46 @@ export class GitHubSubmissionHandler {
             const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
             const logoPath = generateLogoPath(projectName, fileExtension);
             
+            // Get the file's SHA if it exists
+            let sha;
+            try {
+                const response = await this.github.repos.getContent({
+                    owner: this.owner,
+                    repo: this.repo,
+                    path: logoPath,
+                    ref: this.baseBranch
+                });
+                sha = response.data.sha;
+            } catch (error) {
+                // File doesn't exist yet, which is fine
+                if (error.status !== 404) {
+                    throw error;
+                }
+            }
+
             const base64Content = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (e) => resolve(e.target.result.split(',')[1]);
                 reader.onerror = reject;
                 reader.readAsDataURL(file);
             });
-    
-            await this.github.repos.createOrUpdateFileContents({
+
+            const params = {
                 owner: this.owner,
                 repo: this.repo,
                 path: logoPath,
                 message: `Add logo for ${projectName}`,
                 content: base64Content,
                 branch: this.baseBranch
-            });
-    
+            };
+
+            // Only include sha if the file exists
+            if (sha) {
+                params.sha = sha;
+            }
+
+            await this.github.repos.createOrUpdateFileContents(params);
+
             return logoPath;
         } catch (error) {
             console.error('Error uploading logo:', error);
