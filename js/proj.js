@@ -239,7 +239,12 @@ export async function handleAddNewProject() {
         const repoName = urlParts.slice(3).join('/');
         const repoDetails = await fetchRepoDetails(githubUsername, repoName);
 
-        if (!repoDetails.isContributor) {
+        // Check if the user is in the contributors list
+        const isContributor = repoDetails.contributors.some(
+            contributor => contributor.login.toLowerCase() === githubUsername.toLowerCase()
+        );
+
+        if (!isContributor) {
             throw new Error("Only contributors to the repository can add the project.");
         }
 

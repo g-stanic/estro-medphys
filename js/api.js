@@ -27,30 +27,40 @@ export async function fetchRepoDetails(owner, repo) {
     try {
         const octokit = await initializeOctokit();
         
-        // Check if README exists
-        const readmeResponse = await octokit.repos.getReadme({
-            owner,
-            repo,
-            mediaType: {
-                format: 'raw',
-            },
-        }).catch(() => null);
-
-        // Get repository details including license
-        const repoResponse = await octokit.repos.get({
-            owner,
-            repo,
-        });
-
-        const releases = await octokit.rest.repos.listReleases({
-            owner,
-            repo,
-        });
+        // Fetch all promises in parallel
+        const [readmeResponse, repoResponse, releases, contributors] = await Promise.all([
+            octokit.repos.getReadme({
+                owner,
+                repo,
+                mediaType: { format: 'raw' },
+            }).catch(() => null),
+            
+            octokit.repos.get({
+                owner,
+                repo,
+            }),
+            
+            octokit.rest.repos.listReleases({
+                owner,
+                repo,
+            }),
+            
+            octokit.rest.repos.listContributors({
+                owner,
+                repo,
+                per_page: 10  // Limit to top 10 contributors
+            }).catch(() => ({ data: [] }))
+        ]);
 
         return {
             hasReadme: !!readmeResponse,
             license: repoResponse.data.license?.spdx_id || null,
             latestRelease: releases.data[0]?.tag_name || null,
+            contributors: contributors.data.map(c => ({
+                login: c.login,
+                avatar_url: c.avatar_url,
+                contributions: c.contributions
+            }))
         };
         
     } catch (error) {
@@ -59,6 +69,7 @@ export async function fetchRepoDetails(owner, repo) {
             hasReadme: false,
             license: null,
             latestRelease: null,
+            contributors: []
         };
     }
 }
