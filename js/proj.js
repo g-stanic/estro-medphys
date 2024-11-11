@@ -271,7 +271,7 @@ export async function handleAddNewProject() {
 
         // Create and display the new project card
         const projectsContainer = document.getElementById('projects-container');
-        const newProjectCard = createProjectCard(formData);
+        const newProjectCard = await createProjectCard(formData);
         projectsContainer.appendChild(newProjectCard);
 
         clearAddProjectForm();
