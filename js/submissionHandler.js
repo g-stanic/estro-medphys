@@ -40,7 +40,7 @@ export class GitHubSubmissionHandler {
     }
 
     async submitProject(formData) {
-        const token = getGitHubToken();
+        const token = await getGitHubToken();
         if (!token) {
             return {
                 success: false,

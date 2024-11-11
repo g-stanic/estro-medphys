@@ -236,8 +236,9 @@ export async function handleAddNewProject() {
 
     try {
         const urlParts = projectUrl.split('/');
-        const repoName = urlParts.slice(3).join('/');
-        const repoDetails = await fetchRepoDetails(githubUsername, repoName);
+        const owner = urlParts[3];
+        const repoName = urlParts[4];
+        const repoDetails = await fetchRepoDetails(owner, repoName);
 
         // Check if the user is in the contributors list
         const isContributor = repoDetails.contributors.some(
