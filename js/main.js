@@ -4,7 +4,7 @@ import { handleAuthCode } from './auth.js';
 
 async function initializeApp() {
     addLoginButton();
-    
+
     await displayProjects();
 
     const addProjectButton = document.getElementById('addProjectButton');

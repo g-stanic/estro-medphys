@@ -8,6 +8,11 @@ import { GitHubSubmissionHandler } from './submissionHandler.js';
 import { clearAddProjectForm } from './ui.js';
 
 let projects = [];
+let projectsCache = {
+    data: null,
+    lastFetched: null,
+    cacheExpiry: 5 * 60 * 1000 // 5 minutes in milliseconds
+};
 
 // Initialize Octokit asynchronously
 async function initializeOctokit() {
@@ -26,7 +31,15 @@ export async function getOctokit() {
     return octokit;
 }
 
-async function fetchProjects() {
+async function fetchProjects(forceRefresh = false) {
+    // Return cached data if available and not expired
+    if (!forceRefresh && 
+        projectsCache.data && 
+        projectsCache.lastFetched && 
+        (Date.now() - projectsCache.lastFetched) < projectsCache.cacheExpiry) {
+        return projectsCache.data;
+    }
+
     try {
         const octokit = await getOctokit();
         // Get all files from the _projects directory
@@ -70,19 +83,20 @@ async function fetchProjects() {
             };
         });
 
-        // Wait for all projects to be fetched and parsed
-        projects = await Promise.all(projectPromises);
-
+        // Update cache with new data
+        projectsCache.data = await Promise.all(projectPromises);
+        projectsCache.lastFetched = Date.now();
+        
+        return projectsCache.data;
     } catch (error) {
         console.error('Error in fetchProjects:', error);
-        if (error.status === 404) {
-            console.error('Repository or directory not found. Check your GitHub username, repo name, and path.');
-        } else if (error.status === 403) {
-            console.error('Authentication error or rate limit exceeded. Please ensure you are logged in.');
-        }
         throw error;
     }
-    return projects;
+}
+
+// Add a function to force refresh the cache
+export async function refreshProjectsCache() {
+    return await fetchProjects(true);
 }
 
 export async function createProjectCard(project) {
@@ -141,11 +155,12 @@ export async function createProjectCard(project) {
     return card;
 }
 
-export async function displayProjects() {
+export async function displayProjects(forceRefresh = false) {
     try {
-        projects = await fetchProjects();
+        projects = await fetchProjects(forceRefresh);
+        
         const projectsContainer = document.getElementById('projects-container');
-        projectsContainer.innerHTML = ''; // Clear existing content
+        projectsContainer.innerHTML = '';
         
         // Create all project cards asynchronously
         const projectCards = await Promise.all(
@@ -156,6 +171,7 @@ export async function displayProjects() {
         projectCards.forEach(card => {
             projectsContainer.appendChild(card);
         });
+
     } catch (error) {
         console.error('Error displaying projects:', error.message);
         const projectsContainer = document.getElementById('projects-container');
@@ -278,6 +294,9 @@ export async function handleAddNewProject() {
             statusMessage.textContent = result.message;
         }
 
+        // Refresh the projects cache to update the new project
+        await refreshProjectsCache();   
+
         // Create and display the new project card
         const projectsContainer = document.getElementById('projects-container');
         const newProjectCard = await createProjectCard(formData);
@@ -323,117 +342,77 @@ function clearFieldErrors() {
 }
 
 export function openProjectDetails(project, repoDetails) {
-    const width = 800;
-    const height = 600;
-    const left = (window.screen.width - width) / 2;
-    const top = (window.screen.height - height) / 2;
+    // Hide existing elements
+    document.querySelector('.search-container').style.display = 'none';
+    document.querySelector('.add-project-container').style.display = 'none';
+    document.getElementById('projects-container').style.display = 'none';
 
-    const detailsWindow = window.open('', '_blank', `width=${width},height=${height},left=${left},top=${top}`);
-    
+    // Create back button
+    const backButton = document.createElement('button');
+    backButton.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Projects';
+    backButton.className = 'back-button';
+    backButton.onclick = () => {
+        document.querySelector('.search-container').style.display = 'flex';
+        document.querySelector('.add-project-container').style.display = 'flex';
+        document.getElementById('projects-container').style.display = 'flex';
+        document.getElementById('project-details').remove();
+        backButton.remove();
+    };
+
+    // Create and insert the back button and project details
+    const main = document.querySelector('main');
+    main.insertBefore(backButton, main.firstChild);
+
     const logoUrl = project.logo ? 
         getGitLogoUrl(GITHUB_USERNAME, GITHUB_REPO, project.logo) : 
         'assets/logos/default-logo.png';
 
-    const content = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>${project.name} - Project Details</title>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    line-height: 1.6;
-                    margin: 0;
-                    padding: 20px;
-                    color: #24292e;
-                }
-                .project-header {
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 30px;
-                }
-                .project-logo {
-                    width: 150px;
-                    height: 150px;
-                    object-fit: contain;
-                    margin-right: 20px;
-                }
-                .project-title {
-                    flex-grow: 1;
-                }
-                .info-section {
-                    margin-bottom: 20px;
-                    padding: 15px;
-                    background-color: #f6f8fa;
-                    border-radius: 6px;
-                }
-                .tag {
-                    display: inline-block;
-                    padding: 4px 8px;
-                    margin: 2px;
-                    background-color: #e1e4e8;
-                    border-radius: 4px;
-                }
-                .indicator {
-                    margin-right: 15px;
-                }
-                .indicator.active {
-                    color: #2ea44f;
-                }
-                .indicator.inactive {
-                    color: #586069;
-                    opacity: 0.5;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="project-header">
-                <img src="${logoUrl}" alt="${project.name} logo" class="project-logo">
-                <div class="project-title">
-                    <h1>${project.name}</h1>
-                    ${project.abbreviation ? `<h3>${project.abbreviation}</h3>` : ''}
-                </div>
+    const detailsContainer = document.createElement('div');
+    detailsContainer.id = 'project-details';
+    detailsContainer.innerHTML = `
+        <div class="project-header">
+            <img src="${logoUrl}" alt="${project.name} logo" class="project-logo">
+            <div class="project-title">
+                <h1>${project.name}</h1>
+                ${project.abbreviation ? `<h3>${project.abbreviation}</h3>` : ''}
             </div>
+        </div>
 
-            <div class="info-section">
-                <h2>Description</h2>
-                <p>${project.description || 'No description available'}</p>
-            </div>
+        <div class="info-section">
+            <h2>Description</h2>
+            <p>${project.description || 'No description available'}</p>
+        </div>
 
-            <div class="info-section">
-                <h2>Project Details</h2>
-                <p><strong>Repository:</strong> <a href="${project.repository}" target="_blank">${project.repository}</a></p>
-                <p><strong>License:</strong> ${repoDetails.license || 'Not specified'}</p>
-                <p><strong>Latest Release:</strong> ${repoDetails.latestRelease || 'No releases'}</p>
-                <p><strong>Added Date:</strong> ${project.added_date || 'Not specified'}</p>
-            </div>
+        <div class="info-section">
+            <h2>Project Details</h2>
+            <p><strong>Repository:</strong> <a href="${project.repository}" target="_blank">${project.repository}</a></p>
+            <p><strong>License:</strong> ${repoDetails.license || 'Not specified'}</p>
+            <p><strong>Latest Release:</strong> ${repoDetails.latestRelease || 'No releases'}</p>
+            <p><strong>Added Date:</strong> ${project.added_date || 'Not specified'}</p>
+        </div>
 
-            <div class="info-section">
-                <h2>Tags</h2>
-                <div>
-                    ${project.tags ? project.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : 'No tags'}
-                </div>
+        <div class="info-section">
+            <h2>Tags</h2>
+            <div>
+                ${project.tags ? project.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : 'No tags'}
             </div>
+        </div>
 
-            <div class="info-section">
-                <h2>Status Indicators</h2>
-                <div>
-                    <span class="indicator ${repoDetails.hasReadme ? 'active' : 'inactive'}">
-                        <i class="fas fa-book"></i> README ${repoDetails.hasReadme ? 'Available' : 'Not available'}
-                    </span>
-                    <span class="indicator ${repoDetails.license ? 'active' : 'inactive'}">
-                        <i class="fas fa-balance-scale"></i> License ${repoDetails.license ? 'Available' : 'Not available'}
-                    </span>
-                    <span class="indicator ${repoDetails.latestRelease ? 'active' : 'inactive'}">
-                        <i class="fas fa-tag"></i> Releases ${repoDetails.latestRelease ? 'Available' : 'Not available'}
-                    </span>
-                </div>
+        <div class="info-section">
+            <h2>Status Indicators</h2>
+            <div>
+                <span class="indicator ${repoDetails.hasReadme ? 'active' : 'inactive'}">
+                    <i class="fas fa-book"></i> README ${repoDetails.hasReadme ? 'Available' : 'Not available'}
+                </span>
+                <span class="indicator ${repoDetails.license ? 'active' : 'inactive'}">
+                    <i class="fas fa-balance-scale"></i> License ${repoDetails.license ? 'Available' : 'Not available'}
+                </span>
+                <span class="indicator ${repoDetails.latestRelease ? 'active' : 'inactive'}">
+                    <i class="fas fa-tag"></i> Releases ${repoDetails.latestRelease ? 'Available' : 'Not available'}
+                </span>
             </div>
-        </body>
-        </html>
+        </div>
     `;
 
-    detailsWindow.document.write(content);
-    detailsWindow.document.close();
+    main.appendChild(detailsContainer);
 }
