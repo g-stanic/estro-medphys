@@ -11,13 +11,15 @@ function encodeContent(content) {
 function generateYAMLContent(formData) {
     return `---
 name: ${formData.name}
-description: ${formData.description}
+${formData.abbreviation ? `abbreviation: ${formData.abbreviation}` : ''}
+${formData.description ? `description: ${formData.description}` : ''}
 repository: ${formData.repository}
-website: ${formData.website || ''}
-tags: ${JSON.stringify(formData.tags)}
-license: ${formData.license}
-maintainers: ${JSON.stringify(formData.maintainers)}
-logo: ${formData.logo || ''}
+${formData.language ? `language: ${formData.language}` : ''}
+${formData.website ? `website: ${formData.website}` : ''}
+${formData.tags && formData.tags.length > 0 ? `tags: ${JSON.stringify(formData.tags)}` : ''}
+${formData.license ? `license: ${formData.license}` : ''}
+${formData.logo ? `logo: ${formData.logo}` : ''}
+${formData.submitted_by ? `submitted_by: ${JSON.stringify(formData.submitted_by)}` : ''}
 added_date: ${new Date().toISOString().split('T')[0]}
 ---`;
 }

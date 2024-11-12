@@ -88,6 +88,8 @@ async function fetchProjects() {
 export async function createProjectCard(project) {
     const card = document.createElement('div');
     card.className = 'project-card';
+    card.setAttribute('data-project-id', project.id);
+    card.style.cursor = 'pointer';
     
     let repoDetails = { hasReadme: false, license: null, latestRelease: null };
     
@@ -129,6 +131,13 @@ export async function createProjectCard(project) {
             `<a href="${project.repository}" target="_blank" class="view-project">View on GitHub</a>` : 
             ''}
     `;
+
+    // Add click event listener to the card
+    card.addEventListener('click', () => {
+        // Test function that does nothing
+        openProjectDetails(project, repoDetails);
+    });
+
     return card;
 }
 
@@ -311,4 +320,120 @@ function clearFieldErrors() {
     
     errorFields.forEach(field => field.classList.remove('error-field'));
     errorMessages.forEach(msg => msg.remove());
+}
+
+export function openProjectDetails(project, repoDetails) {
+    const width = 800;
+    const height = 600;
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+
+    const detailsWindow = window.open('', '_blank', `width=${width},height=${height},left=${left},top=${top}`);
+    
+    const logoUrl = project.logo ? 
+        getGitLogoUrl(GITHUB_USERNAME, GITHUB_REPO, project.logo) : 
+        'assets/logos/default-logo.png';
+
+    const content = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${project.name} - Project Details</title>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    margin: 0;
+                    padding: 20px;
+                    color: #24292e;
+                }
+                .project-header {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 30px;
+                }
+                .project-logo {
+                    width: 150px;
+                    height: 150px;
+                    object-fit: contain;
+                    margin-right: 20px;
+                }
+                .project-title {
+                    flex-grow: 1;
+                }
+                .info-section {
+                    margin-bottom: 20px;
+                    padding: 15px;
+                    background-color: #f6f8fa;
+                    border-radius: 6px;
+                }
+                .tag {
+                    display: inline-block;
+                    padding: 4px 8px;
+                    margin: 2px;
+                    background-color: #e1e4e8;
+                    border-radius: 4px;
+                }
+                .indicator {
+                    margin-right: 15px;
+                }
+                .indicator.active {
+                    color: #2ea44f;
+                }
+                .indicator.inactive {
+                    color: #586069;
+                    opacity: 0.5;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="project-header">
+                <img src="${logoUrl}" alt="${project.name} logo" class="project-logo">
+                <div class="project-title">
+                    <h1>${project.name}</h1>
+                    ${project.abbreviation ? `<h3>${project.abbreviation}</h3>` : ''}
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2>Description</h2>
+                <p>${project.description || 'No description available'}</p>
+            </div>
+
+            <div class="info-section">
+                <h2>Project Details</h2>
+                <p><strong>Repository:</strong> <a href="${project.repository}" target="_blank">${project.repository}</a></p>
+                <p><strong>License:</strong> ${repoDetails.license || 'Not specified'}</p>
+                <p><strong>Latest Release:</strong> ${repoDetails.latestRelease || 'No releases'}</p>
+                <p><strong>Added Date:</strong> ${project.added_date || 'Not specified'}</p>
+            </div>
+
+            <div class="info-section">
+                <h2>Tags</h2>
+                <div>
+                    ${project.tags ? project.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : 'No tags'}
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2>Status Indicators</h2>
+                <div>
+                    <span class="indicator ${repoDetails.hasReadme ? 'active' : 'inactive'}">
+                        <i class="fas fa-book"></i> README ${repoDetails.hasReadme ? 'Available' : 'Not available'}
+                    </span>
+                    <span class="indicator ${repoDetails.license ? 'active' : 'inactive'}">
+                        <i class="fas fa-balance-scale"></i> License ${repoDetails.license ? 'Available' : 'Not available'}
+                    </span>
+                    <span class="indicator ${repoDetails.latestRelease ? 'active' : 'inactive'}">
+                        <i class="fas fa-tag"></i> Releases ${repoDetails.latestRelease ? 'Available' : 'Not available'}
+                    </span>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+
+    detailsWindow.document.write(content);
+    detailsWindow.document.close();
 }
