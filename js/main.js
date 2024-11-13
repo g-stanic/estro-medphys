@@ -24,7 +24,7 @@ window.addEventListener('message', async function(event) {
             if (loginButton) {
                 updateLoginButtonState(loginButton); // Update login button state
             }
-            await displayProjects();
+            // await displayProjects();
             
             // Close the popup window if it's still open
             if (event.source) {

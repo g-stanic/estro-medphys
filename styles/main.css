@@ -1,4 +1,12 @@
-/* Base Layout Styles */
+/*
+ * ESTRO MedPhys Main Stylesheet
+ * This stylesheet contains all the core styling for the ESTRO MedPhys application
+ */
+
+/* ==========================================================================
+   Base Layout Styles
+   Sets up the fundamental page structure and typography
+   ========================================================================== */
 body {
     min-height: 100vh;
     display: flex;
@@ -16,7 +24,10 @@ main {
     padding: 2rem;
 }
 
-/* Project Management UI */
+/* ==========================================================================
+   Project Management Interface
+   Styles for project listing, adding, and management controls
+   ========================================================================== */
 .add-project-container {
     display: flex;
     align-items: center;
@@ -45,7 +56,10 @@ main {
     background-color: #cc6639;
 }
 
-/* Modal Overlay and Popup Styles */
+/* ==========================================================================
+   Modal System
+   Styles for overlay popups and form interfaces
+   ========================================================================== */
 .overlay {
     display: none;
     position: fixed;
@@ -127,23 +141,10 @@ main {
     font-size: 24px;
 }
 
-/* Footer Styling */
-.site-footer {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    text-align: center;
-    border-top: 1px solid #ddd;
-}
-
-.footer-content a {
-    color: #01172F;
-    text-decoration: none;
-}
-
-.footer-content a:hover {
-    color: #FC814A;
-}
-
+/* ==========================================================================
+   Error Handling and Validation
+   Styles for error states and validation feedback
+   ========================================================================== */
 .overlay-error {
     display: none;
     color: #721c24;
@@ -183,4 +184,148 @@ main {
     position: relative;
     width: 100%;
     margin-top: 10px;
+}
+
+.back-button {
+    font-size: 14px;
+    padding: 10px 20px;
+    background-color: #FC814A;
+    color: #01172F;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-button:hover {
+    background-color: #cc6639;
+}
+
+#project-details {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#project-details .project-header {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+#project-details .project-title {
+    flex-grow: 1;
+}
+
+#project-details .info-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f6f8fa;
+    border-radius: 6px;
+}
+
+#project-details .tag {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 2px;
+    background-color: #e1e4e8;
+    border-radius: 4px;
+}
+
+#project-details .indicator {
+    margin-right: 15px;
+}
+
+#project-details .indicator.active {
+    color: #2ea44f;
+}
+
+#project-details .indicator.inactive {
+    color: #586069;
+    opacity: 0.5;
+}
+
+
+.remove-project-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.remove-project-button:hover {
+    background-color: #c82333;
+}
+
+.project-actions-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.edit-project-button {
+    background-color: #0366d6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.edit-project-button:hover {
+    background-color: #0256b4;
+}
+
+/* ==========================================================================
+   Footer Styling
+   Styles for the site footer and related elements
+   ========================================================================== */
+.site-footer {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    text-align: center;
+    border-top: 1px solid #ddd;
+}
+
+.footer-content a {
+    color: #01172F;
+    text-decoration: none;
+}
+
+.footer-content a:hover {
+    color: #FC814A;
+}
+
+.project-details-logo {
+    height: 200px;
+    width: auto;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 1rem;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow added */
+}
+
+.project-details-logo img {
+    max-height: 100%;
+    width: auto; /* Allow width to adjust naturally */
+    object-fit: contain;
+    border-radius: 8px;
 }

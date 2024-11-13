@@ -3,9 +3,9 @@ import { GITHUB_USERNAME, GITHUB_REPO} from './config.js';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 import jsyaml from 'https://cdn.skypack.dev/js-yaml';
 import { getGitLogoUrl} from './logoUtils.js';
-import { getUserGitHubToken, getGitHubToken } from './auth.js';
+import { getUserGitHubToken, getGitHubToken, getCurrentGitHubUser } from './auth.js';
 import { GitHubSubmissionHandler } from './submissionHandler.js';
-import { clearAddProjectForm } from './ui.js';
+import { clearAddProjectForm, createOverlay} from './ui.js';
 
 let projects = [];
 let projectsCache = {
@@ -341,11 +341,12 @@ function clearFieldErrors() {
     errorMessages.forEach(msg => msg.remove());
 }
 
-export function openProjectDetails(project, repoDetails) {
+export async function openProjectDetails(project, repoDetails) {
     // Hide existing elements
     document.querySelector('.search-container').style.display = 'none';
     document.querySelector('.add-project-container').style.display = 'none';
     document.getElementById('projects-container').style.display = 'none';
+    document.getElementById('loginButton').style.display = 'none';
 
     // Create back button
     const backButton = document.createElement('button');
@@ -355,9 +356,16 @@ export function openProjectDetails(project, repoDetails) {
         document.querySelector('.search-container').style.display = 'flex';
         document.querySelector('.add-project-container').style.display = 'flex';
         document.getElementById('projects-container').style.display = 'flex';
+        document.getElementById('loginButton').style.display = 'block';
         document.getElementById('project-details').remove();
         backButton.remove();
     };
+
+    // Get current user
+    const currentUser = await getCurrentGitHubUser();
+    const isSubmitter = currentUser && project.submitted_by && 
+                       project.submitted_by.some(submitter => 
+                           submitter.toLowerCase() === currentUser.toLowerCase());
 
     // Create and insert the back button and project details
     const main = document.querySelector('main');
@@ -369,9 +377,12 @@ export function openProjectDetails(project, repoDetails) {
 
     const detailsContainer = document.createElement('div');
     detailsContainer.id = 'project-details';
+
     detailsContainer.innerHTML = `
         <div class="project-header">
-            <img src="${logoUrl}" alt="${project.name} logo" class="project-logo">
+            <div class="project-details-logo">
+                <img src="${logoUrl}" alt="${project.name} logo" class="project-details-image">
+            </div>
             <div class="project-title">
                 <h1>${project.name}</h1>
                 ${project.abbreviation ? `<h3>${project.abbreviation}</h3>` : ''}
@@ -389,6 +400,7 @@ export function openProjectDetails(project, repoDetails) {
             <p><strong>License:</strong> ${repoDetails.license || 'Not specified'}</p>
             <p><strong>Latest Release:</strong> ${repoDetails.latestRelease || 'No releases'}</p>
             <p><strong>Added Date:</strong> ${project.added_date || 'Not specified'}</p>
+            <p><strong>Submitted by:</strong> ${project.submitted_by ? project.submitted_by.join(', ') : 'Not specified'}</p>
         </div>
 
         <div class="info-section">
@@ -412,7 +424,77 @@ export function openProjectDetails(project, repoDetails) {
                 </span>
             </div>
         </div>
+
+        ${isSubmitter ? `
+            <div class="project-actions-container" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="edit-project-button">
+                    <i class="fas fa-edit"></i> Edit Project
+                </button>
+                <button class="remove-project-button">
+                    <i class="fas fa-trash"></i> Remove Project
+                </button>
+            </div>
+        ` : ''}
     `;
 
     main.appendChild(detailsContainer);
+
+    // Add event listeners for action buttons if user is submitter
+    if (isSubmitter) {
+        const removeButton = detailsContainer.querySelector('.remove-project-button');
+        const editButton = detailsContainer.querySelector('.edit-project-button');
+
+        removeButton.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to remove this project?')) {
+                try {
+                    const handler = await new GitHubSubmissionHandler({
+                        owner: GITHUB_USERNAME,
+                        repo: GITHUB_REPO,
+                        baseBranch: 'site',
+                        projectsPath: '_projects'
+                    }).initialize();
+
+                    await handler.removeProject(project.name);
+                    
+                    // Refresh projects and go back to main view
+                    await refreshProjectsCache();
+                    backButton.click();
+                } catch (error) {
+                    console.error('Error removing project:', error);
+                    alert('Failed to remove project. Please try again later.');
+                }
+            }
+        });
+
+        editButton.addEventListener('click', () => {
+            // Show the overlay with pre-filled project data
+            const overlay = document.querySelector('.overlay') || createOverlay();
+            overlay.style.display = 'block';
+
+            // Pre-fill the form with existing project data
+            document.getElementById('projectName').value = project.name || '';
+            document.getElementById('projectAbbreviation').value = project.abbreviation || '';
+            document.getElementById('projectDescription').value = project.description || '';
+            document.getElementById('projectUrl').value = project.repository || '';
+            document.getElementById('projectLanguage').value = project.language || '';
+            document.getElementById('githubUsername').value = project.submitted_by?.[0] || '';
+            document.getElementById('orcidId').value = project.orcid_id || '';
+
+            // Set selected keywords if they exist
+            const keywordsSelect = document.getElementById('projectKeywords');
+            if (project.tags) {
+                Array.from(keywordsSelect.options).forEach(option => {
+                    option.selected = project.tags.includes(option.value);
+                });
+            }
+
+            // Update submit button text to indicate editing
+            const submitButton = document.getElementById('submitRepo');
+            submitButton.textContent = 'Update Project';
+            
+            // Store the original project name for reference
+            submitButton.dataset.editMode = 'true';
+            submitButton.dataset.originalName = project.name;
+        });
+    }
 }

@@ -1,4 +1,5 @@
 import { REDIRECT_URI, PROXY_URL} from './config.js';
+import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 
 export async function authenticateWithGitHub() {
     const response = await fetch(`${PROXY_URL}/client-id`);
@@ -58,4 +59,18 @@ export async function getGitHubToken() {
 // Check if user is authenticated
 export function isUserAuthenticated() {
     return !!getUserGitHubToken();
+}
+
+export async function getCurrentGitHubUser() {
+    const token = sessionStorage.getItem('github_token');
+    if (!token) return null;
+
+    try {
+        const octokit = new Octokit({ auth: token });
+        const { data } = await octokit.users.getAuthenticated();
+        return data.login;
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        return null;
+    }
 }
