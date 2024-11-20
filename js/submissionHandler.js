@@ -130,5 +130,35 @@ export class GitHubSubmissionHandler {
             throw error;
         }
     }
+
+    async removeProject(projectName) {
+        const fileName = `${projectName.toLowerCase().replace(/\s+/g, '-')}.yml`;
+        const filePath = `${this.projectsPath}/${fileName}`;
+
+        try {
+            // Get the file's SHA
+            const fileResponse = await this.github.repos.getContent({
+                owner: this.owner,
+                repo: this.repo,
+                path: filePath,
+                ref: this.baseBranch
+            });
+
+            // Delete the file
+            await this.github.repos.deleteFile({
+                owner: this.owner,
+                repo: this.repo,
+                path: filePath,
+                message: `Remove project: ${projectName}`,
+                sha: fileResponse.data.sha,
+                branch: this.baseBranch
+            });
+
+            return true;
+        } catch (error) {
+            console.error('Error removing project:', error);
+            throw error;
+        }
+    }
 }
 

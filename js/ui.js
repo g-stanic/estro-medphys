@@ -57,12 +57,6 @@ export function updateLoginButtonState(button) {
 }
 
 export function createOverlay() {
-    // TODO: Add identifiers/references.
-    // TODO: There needs to be an error message if the project already exists
-    // TODO: The error message should disappear when the user clicks on the overlay again.
-    // TODO: An error message should appear if the project is not found.
-    // TODO: An error message should appear in the overlay if the user didn't
-    // add all the necessary info
     const overlay = document.createElement('div');
     overlay.className = 'overlay';
     overlay.innerHTML = `
@@ -73,13 +67,19 @@ export function createOverlay() {
             
             <h3>Section 1: Project</h3>
             <div class="input-wrapper">
-                <input type="text" id="projectName" placeholder="Full project name">
+                <div class="input-container">
+                    <span class="required-star" style="color: red;">*</span>
+                    <input type="text" id="projectName" placeholder="Full project name">
+                </div>
             </div>
             <input type="text" id="projectAbbreviation" placeholder="Project abbreviation">
-            <textarea id="projectDescription" placeholder="Project description"></textarea>
             <div class="input-wrapper">
-                <input type="url" id="projectUrl" placeholder="Project URL">
+                <div class="input-container">
+                    <span class="required-star" style="color: red;">*</span>
+                    <input type="url" id="projectUrl" placeholder="Project URL">
+                </div>
             </div>
+            <textarea id="projectDescription" placeholder="Project description"></textarea>
             <input type="text" id="projectLanguage" placeholder="Project language">
             <select id="projectKeywords" multiple>
                 <option value="medical-physics">Medical Physics</option>
@@ -105,7 +105,9 @@ export function createOverlay() {
             <h3>Section 4: Submitter</h3>
             <input type="text" id="First and last name" placeholder="First and last name">
             <div class="input-wrapper">
-                <input type="text" id="githubUsername" placeholder="GitHub Username">
+                <div class="input-container">   
+                    <span class="required-star" style="color: red;">*</span>
+                    <input type="text" id="githubUsername" placeholder="GitHub Username">
             </div>
             <input type="text" id="orcidId" placeholder="ORCID ID (if applicable)">
             

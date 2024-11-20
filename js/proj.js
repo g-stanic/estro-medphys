@@ -136,8 +136,8 @@ export async function createProjectCard(project) {
         <div class="project-indicators">
             <i class="fas fa-book readme-indicator ${repoDetails.hasReadme ? 'active' : 'inactive'}" 
                title="${repoDetails.hasReadme ? 'README available' : 'No README found'}"></i>
-            <i class="fas fa-balance-scale license-indicator ${repoDetails.license ? 'active' : 'inactive'}" 
-                title="${repoDetails.license ? `License: ${repoDetails.license}` : 'No license found'}"></i>
+            <i class="fas fa-balance-scale license-indicator ${repoDetails.license === 'NOASSERTION' ? 'active' : (repoDetails.license ? 'active' : 'inactive')}" 
+                title="${repoDetails.license === 'NOASSERTION' ? 'Check GitHub' : (repoDetails.license ? `License: ${repoDetails.license}` : 'No license found')}"></i>
             <i class="fas fa-tag release-indicator ${repoDetails.latestRelease ? 'active' : 'inactive'}" 
                title="${repoDetails.latestRelease ? `Latest release: ${repoDetails.latestRelease}` : 'No releases found'}"></i>
         </div>
@@ -287,7 +287,6 @@ export async function handleAddNewProject() {
         
         if (result.success) {
             statusMessage.textContent = result.message;
-            window.open(result.prUrl, '_blank');
             const overlay = document.querySelector('.overlay');
             overlay.style.display = 'none';
         } else {
@@ -456,9 +455,15 @@ export async function openProjectDetails(project, repoDetails) {
 
                     await handler.removeProject(project.name);
                     
-                    // Refresh projects and go back to main view
-                    await refreshProjectsCache();
+                    // Show message about pending removal
+                    alert('Project removal request submitted. It will take a minute for the action to take effect. If you still see your project after some time, contact the administrator.');
+                    
+                    // Go back to main view
                     backButton.click();
+
+                    // Refresh the projects cache
+                    await refreshProjectsCache();
+
                 } catch (error) {
                     console.error('Error removing project:', error);
                     alert('Failed to remove project. Please try again later.');

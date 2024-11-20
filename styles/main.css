@@ -329,3 +329,16 @@ main {
     object-fit: contain;
     border-radius: 8px;
 }
+
+.input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.required-star {
+    position: absolute;
+    left: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
