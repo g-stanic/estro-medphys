@@ -1,67 +1,81 @@
-import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 import { getGitHubToken } from './auth.js';
 
-// Initialize Octokit with async token
-async function initializeOctokit() {
+/**
+ * Initializes a GraphQL client for GitHub's API
+ */
+async function initializeGraphQLClient() {
     const token = await getGitHubToken();
-    const octokit = new Octokit({
-        auth: token
-    });
-
-    // Check rate limit after initialization
-    try {
-        const { data: rateLimit } = await octokit.rest.rateLimit.get();
-        console.log('GitHub API Rate Limit:', {
-            remaining: rateLimit.rate.remaining,
-            limit: rateLimit.rate.limit,
-            resetAt: new Date(rateLimit.rate.reset * 1000).toLocaleString()
-        });
-    } catch (error) {
-        console.error('Error checking rate limit:', error);
-    }
-
-    return octokit;
+    return {
+        query: async (query, variables) => {
+            const response = await fetch('https://api.github.com/graphql', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query, variables }),
+            });
+            return response.json();
+        }
+    };
 }
 
+/**
+ * Fetches repository details using a single GraphQL query
+ */
 export async function fetchRepoDetails(owner, repo) {
     try {
-        const octokit = await initializeOctokit();
+        const client = await initializeGraphQLClient();
         
-        // Fetch all promises in parallel
-        const [readmeResponse, repoResponse, releases, contributors] = await Promise.all([
-            octokit.repos.getReadme({
-                owner,
-                repo,
-                mediaType: { format: 'raw' },
-            }).catch(() => null),
-            
-            octokit.repos.get({
-                owner,
-                repo,
-            }),
-            
-            octokit.rest.repos.listReleases({
-                owner,
-                repo,
-            }),
-            
-            octokit.rest.repos.listContributors({
-                owner,
-                repo,
-            }).catch(() => ({ data: [] }))
-        ]);
+        const query = `
+            query GetRepoDetails($owner: String!, $repo: String!) {
+                repository(owner: $owner, name: $repo) {
+                    object(expression: "HEAD:README.md") { id }
+                    licenseInfo { spdx_id: spdxId }
+                    releases(first: 1, orderBy: {field: CREATED_AT, direction: DESC}) {
+                        nodes { tagName }
+                    }
+                    contributors: collaborators(first: 100) {
+                        nodes {
+                            login
+                            avatarUrl
+                            contributionsCollection {
+                                totalCommitContributions
+                            }
+                        }
+                    }
+                }
+                rateLimit {
+                    limit
+                    remaining
+                    resetAt
+                }
+            }
+        `;
+
+        const { data } = await client.query(query, { owner, repo });
+        
+        if (data.rateLimit) {
+            console.log(`GitHub API Rate Limit - Remaining: ${data.rateLimit.remaining}/${data.rateLimit.limit} | Resets at: ${new Date(data.rateLimit.resetAt).toLocaleString()}`);
+        }
+
+        if (!data?.repository) {
+            throw new Error('Repository not found or inaccessible');
+        }
+
+        const repository = data.repository;
 
         return {
-            hasReadme: !!readmeResponse,
-            license: repoResponse.data.license?.spdx_id || null,
-            latestRelease: releases.data[0]?.tag_name || null,
-            contributors: contributors.data.map(c => ({
+            hasReadme: !!repository.object,
+            license: repository.licenseInfo?.spdx_id || null,
+            latestRelease: repository.releases?.nodes?.[0]?.tagName || null,
+            contributors: repository.contributors?.nodes?.map(c => ({
                 login: c.login,
-                avatar_url: c.avatar_url,
-                contributions: c.contributions
-            }))
+                avatar_url: c.avatarUrl,
+                contributions: c.contributionsCollection.totalCommitContributions
+            })) || []
         };
-        
+
     } catch (error) {
         console.error('Error fetching repo details:', error);
         return {

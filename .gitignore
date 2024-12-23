@@ -1,3 +1,6 @@
 _site/
 Gemfile
 Gemfile.lock
+instructions.txt
+# Local Netlify folder
+.netlify

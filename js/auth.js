@@ -1,6 +1,10 @@
 import { REDIRECT_URI, PROXY_URL} from './config.js';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest@18.12.0';
 
+/**
+ * Authenticates the user with GitHub by opening the OAuth authorization URL.
+ * The user is redirected to GitHub to authorize the application.
+ */
 export async function authenticateWithGitHub() {
     const response = await fetch(`${PROXY_URL}/client-id`);
     const data = await response.json();
@@ -9,6 +13,13 @@ export async function authenticateWithGitHub() {
     window.open(authUrl, 'GitHub Authentication', 'width=600,height=600');
 }
 
+/**
+ * Handles the authorization code received from GitHub after user authentication.
+ * Exchanges the code for an access token and stores it in session storage.
+ * 
+ * @param {string} code - The authorization code received from GitHub.
+ * @returns {boolean} - Returns true if the token is successfully retrieved and stored, otherwise false.
+ */
 export async function handleAuthCode(code) {
     if (code) {
         try {
@@ -33,7 +44,11 @@ export async function handleAuthCode(code) {
     return false;
 }
 
-// Get server token for general API operations
+/**
+ * Fetches a server token for general API operations from the proxy server.
+ * 
+ * @returns {string|null} - Returns the GitHub token if available, otherwise null.
+ */
 export async function getServerGitHubToken() {
     try {
         const response = await fetch(`${PROXY_URL}/github-token`);
@@ -45,22 +60,39 @@ export async function getServerGitHubToken() {
     }
 }
 
-// Get user token (if they're logged in)
+/**
+ * Retrieves the user token from session storage if the user is logged in.
+ * 
+ * @returns {string|null} - Returns the GitHub token from session storage or null if not found.
+ */
 export function getUserGitHubToken() {
     return sessionStorage.getItem('github_token');
 }
 
-// General purpose token getter - prefers server token for API operations
+/**
+ * General purpose token getter that prefers the server token for API operations.
+ * 
+ * @returns {string|null} - Returns the server token or null if not available.
+ */
 export async function getGitHubToken() {
     const serverToken = await getServerGitHubToken();
     return serverToken;
 }
 
-// Check if user is authenticated
+/**
+ * Checks if the user is authenticated by verifying the presence of a user token.
+ * 
+ * @returns {boolean} - Returns true if the user is authenticated, otherwise false.
+ */
 export function isUserAuthenticated() {
     return !!getUserGitHubToken();
 }
 
+/**
+ * Fetches the current authenticated GitHub user's login name.
+ * 
+ * @returns {string|null} - Returns the GitHub username if authenticated, otherwise null.
+ */
 export async function getCurrentGitHubUser() {
     const token = sessionStorage.getItem('github_token');
     if (!token) return null;
