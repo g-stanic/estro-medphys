@@ -220,13 +220,23 @@ async function fetchRepoDescription(owner, repo) {
 }
 
 async function fetchGitLabRepoInfo(owner, repo) {
+    // Check if repo exists
+    const encodedPath = encodeURIComponent(`${owner}/${repo}`);
+    const baseUrl = `https://gitlab.com/api/v4/projects/${encodedPath}`;
+    const response = await fetch(baseUrl);
+    if (!response.ok) {
+        console.error('Repository not found');
+        return { name: '', description: '', language: '', license: '' };
+    }
+
     try {
         const encodedPath = encodeURIComponent(`${owner}/${repo}`);
         const baseUrl = `https://gitlab.com/api/v4/projects/${encodedPath}`;
+        const baseUrl_license = `https://gitlab.com/api/v4/projects/${encodedPath}/?license=true`;
         
         // Fetch both project info and languages in parallel
         const [projectResponse, languagesResponse] = await Promise.all([
-            fetch(baseUrl),
+            fetch(baseUrl_license),
             fetch(`${baseUrl}/languages`)
         ]);
         

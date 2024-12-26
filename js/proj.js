@@ -156,25 +156,32 @@ export async function createProjectCard(project) {
 }
 
 export async function displayProjects(forceRefresh = false) {
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const projectsContainer = document.getElementById('projects-container');
+    
+    // Show only loading indicator inside container
+    projectsContainer.innerHTML = '';
+    projectsContainer.appendChild(loadingIndicator);
+    loadingIndicator.classList.add('loading');
+
     try {
         projects = await fetchProjects(forceRefresh);
-        
-        const projectsContainer = document.getElementById('projects-container');
-        projectsContainer.innerHTML = '';
         
         // Create all project cards asynchronously
         const projectCards = await Promise.all(
             projects.map(project => createProjectCard(project))
         );
         
-        // Add all cards to the container
+        // Remove loading indicator and add cards
+        loadingIndicator.remove();
         projectCards.forEach(card => {
             projectsContainer.appendChild(card);
         });
 
     } catch (error) {
-        console.error('Error displaying projects:', error.message);
-        const projectsContainer = document.getElementById('projects-container');
+        // Show error message in container
+        loadingIndicator.remove();
         projectsContainer.innerHTML = `<p>Error loading projects: ${error.message}</p>`;
     }
 }
