@@ -271,7 +271,11 @@ export async function handleAddNewProject() {
         );
 
         if (!isContributor) {
-            throw new Error("Only contributors to the repository can add the project.");
+            const errorDiv = document.getElementById('overlayError');
+            errorDiv.textContent = 'Only contributors to the repository can add the project.';
+            errorDiv.classList.add('show');
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
         }
 
         const handler = await new GitHubSubmissionHandler({
