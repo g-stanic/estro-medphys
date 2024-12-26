@@ -342,3 +342,10 @@ main {
     top: 50%;
     transform: translateY(-50%);
 }
+
+.popup input:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+    color: #666;
+    border: 1px solid #ddd;
+}

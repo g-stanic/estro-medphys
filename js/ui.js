@@ -1,4 +1,4 @@
-import { isUserAuthenticated, authenticateWithGitHub } from './auth.js';
+import { isUserAuthenticated, authenticateWithGitHub, getCurrentGitHubUser } from './auth.js';
 import { handleAddNewProject } from './proj.js';
 import { getOctokit } from './proj.js';
 
@@ -127,7 +127,12 @@ export function createOverlay() {
     return overlay;
 }
 
-export function showOverlay() {
+// Helper function to check if we're in production
+function isProduction() {
+    return window.location.hostname === 'g-stanic.github.io';
+}
+
+export async function showOverlay() {
     // Check authentication before showing overlay
     if (!isUserAuthenticated()) {
         const statusMessage = document.getElementById('addProjectStatus');
@@ -142,13 +147,25 @@ export function showOverlay() {
     }
     overlay.style.display = 'block';
 
+    // Only auto-fill and lock GitHub username in production
+    if (isProduction()) {
+        const currentUser = await getCurrentGitHubUser();
+        const githubUsernameInput = document.getElementById('githubUsername');
+        if (currentUser && githubUsernameInput) {
+            githubUsernameInput.value = currentUser;
+            githubUsernameInput.disabled = true;
+            githubUsernameInput.style.backgroundColor = '#f0f0f0';
+            githubUsernameInput.style.cursor = 'not-allowed';
+        }
+    }
+
     const statusMessage = document.getElementById('addProjectStatus');
     statusMessage.textContent = ''; // Clear any previous status message
 
     // Ensure event listeners are attached only once
     const submitBtn = overlay.querySelector('#submitRepo');
-    submitBtn.removeEventListener('click', handleAddNewProject); // Remove any existing listener
-    submitBtn.addEventListener('click', handleAddNewProject); // Add new listener
+    submitBtn.removeEventListener('click', handleAddNewProject);
+    submitBtn.addEventListener('click', handleAddNewProject);
 
     const closeBtn = overlay.querySelector('.close-btn');
     closeBtn.addEventListener('click', () => {
@@ -163,7 +180,10 @@ export function clearAddProjectForm() {
     document.getElementById('projectUrl').value = '';
     document.getElementById('projectLanguage').value = '';
     document.getElementById('projectKeywords').selectedIndex = -1;
-    document.getElementById('githubUsername').value = '';
+    // Only clear GitHub username if not in production
+    if (!isProduction()) {
+        document.getElementById('githubUsername').value = '';
+    }
     document.getElementById('orcidId').value = '';
     document.getElementById('projectLogo').value = '';
 }
