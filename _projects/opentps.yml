@@ -1,0 +1,13 @@
+---
+name: OpenTPS
+
+description: Open source TPS for proton therapy
+repository: https://gitlab.com/openmcsquare/opentps
+language: Python
+
+tags: ["imaging","quality-assurance"]
+license: Apache License 2.0
+logo: assets/logos/opentps-logo.png
+submitted_by: ["ana.barragan"]
+added_date: 2024-12-26
+---
