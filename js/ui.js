@@ -69,16 +69,16 @@ export function createOverlay() {
             <div class="input-wrapper">
                 <div class="input-container">
                     <span class="required-star" style="color: red;">*</span>
+                    <input type="url" id="projectUrl" placeholder="Project URL">
+                </div>
+            </div>
+            <div class="input-wrapper">
+                <div class="input-container">
+                    <span class="required-star" style="color: red;">*</span>
                     <input type="text" id="projectName" placeholder="Full project name">
                 </div>
             </div>
             <input type="text" id="projectAbbreviation" placeholder="Project abbreviation">
-            <div class="input-wrapper">
-                <div class="input-container">
-                    <span class="required-star" style="color: red;">*</span>
-                    <input type="url" id="projectUrl" placeholder="Project URL">
-                </div>
-            </div>
             <textarea id="projectDescription" placeholder="Project description"></textarea>
             <input type="text" id="projectLanguage" placeholder="Project language">
             <select id="projectKeywords" multiple>
@@ -89,11 +89,7 @@ export function createOverlay() {
                 <option value="quality-assurance">Quality Assurance</option>
                 <!-- Add more options as needed -->
             </select>
-            <select id="projectLicense">
-                <option value="GPL-3.0">GPL-3.0</option>
-                <option value="MIT">MIT</option>
-                <option value="Apache-2.0">Apache-2.0</option>
-            </select>
+            <input type="text" id="projectLicense" placeholder="Project license">
             <input type="text" id="projectStatus" placeholder="Development status">
 
             <h3>Section 2: Funding information</h3>
@@ -244,12 +240,14 @@ async function fetchGitLabRepoInfo(owner, repo) {
             .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
         
         return {
+            name: projectData.name || '',
             description: projectData.description || '',
-            language: primaryLanguage
+            language: primaryLanguage,
+            license: projectData.license?.name || ''
         };
     } catch (error) {
         console.error('Error fetching GitLab repository info:', error);
-        return { description: '', language: '' };
+        return { name: '', description: '', language: '', license: '' };
     }
 }
 
@@ -267,20 +265,24 @@ async function fetchGitHubRepoInfo(owner, repo) {
             .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
             
         return {
+            name: descriptionResponse.data.name || '',
             description: descriptionResponse.data.description || '',
-            language: primaryLanguage
+            language: primaryLanguage,
+            license: descriptionResponse.data.license?.spdx_id || ''
         };
     } catch (error) {
         console.error('Error fetching GitHub repository info:', error);
-        return { description: '', language: '' };
+        return { name: '', description: '', language: '', license: '' };
     }
 }
 
 // Updated event listener function to handle URL changes
 async function handleProjectUrlChange() {
     const projectUrl = document.getElementById('projectUrl').value.trim();
+    const projectNameInput = document.getElementById('projectName');
     const languageInput = document.getElementById('projectLanguage');
     const descriptionInput = document.getElementById('projectDescription');
+    const licenseInput = document.getElementById('projectLicense');
     
     if (!projectUrl) return;
 
@@ -302,11 +304,21 @@ async function handleProjectUrlChange() {
         }
 
         // Update form fields with fetched information
+        if (repoInfo.name) {
+            projectNameInput.value = repoInfo.name;
+        }
         if (repoInfo.language) {
             languageInput.value = repoInfo.language;
         }
         if (repoInfo.description) {
             descriptionInput.value = repoInfo.description;
+        }
+        if (repoInfo.license) {
+            if (repoInfo.license === 'NOASSERTION') {
+                licenseInput.value = 'Special license';
+            } else {
+                licenseInput.value = repoInfo.license;
+            }
         }
     } catch (error) {
         console.error('Error updating repository information:', error);
