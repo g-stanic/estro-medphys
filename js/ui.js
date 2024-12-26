@@ -203,39 +203,92 @@ async function fetchRepoDescription(owner, repo) {
     }
 }
 
-// Add an event listener function to handle URL changes
+async function fetchGitLabRepoInfo(owner, repo) {
+    try {
+        const encodedPath = encodeURIComponent(`${owner}/${repo}`);
+        const baseUrl = `https://gitlab.com/api/v4/projects/${encodedPath}`;
+        
+        // Fetch both project info and languages in parallel
+        const [projectResponse, languagesResponse] = await Promise.all([
+            fetch(baseUrl),
+            fetch(`${baseUrl}/languages`)
+        ]);
+        
+        const [projectData, languages] = await Promise.all([
+            projectResponse.json(),
+            languagesResponse.json()
+        ]);
+        
+        // Get the language with highest percentage
+        const primaryLanguage = Object.entries(languages)
+            .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
+        
+        return {
+            description: projectData.description || '',
+            language: primaryLanguage
+        };
+    } catch (error) {
+        console.error('Error fetching GitLab repository info:', error);
+        return { description: '', language: '' };
+    }
+}
+
+async function fetchGitHubRepoInfo(owner, repo) {
+    try {
+        const octokit = await getOctokit();
+        const [languageResponse, descriptionResponse] = await Promise.all([
+            octokit.repos.listLanguages({ owner, repo }),
+            octokit.repos.get({ owner, repo })
+        ]);
+        
+        // Get the primary language
+        const languages = languageResponse.data;
+        const primaryLanguage = Object.entries(languages)
+            .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
+            
+        return {
+            description: descriptionResponse.data.description || '',
+            language: primaryLanguage
+        };
+    } catch (error) {
+        console.error('Error fetching GitHub repository info:', error);
+        return { description: '', language: '' };
+    }
+}
+
+// Updated event listener function to handle URL changes
 async function handleProjectUrlChange() {
     const projectUrl = document.getElementById('projectUrl').value.trim();
     const languageInput = document.getElementById('projectLanguage');
     const descriptionInput = document.getElementById('projectDescription');
     
-    if (projectUrl) {
-        try {
-            const urlParts = projectUrl.split('/');
-            if (urlParts.length >= 5) {
-                const owner = urlParts[3];
-                const repo = urlParts[4];
-                const language = await fetchRepoLanguage(owner, repo);
-                if (language) {
-                    languageInput.value = language;
-                }
-            }
-        } catch (error) {
-            console.error('Error updating language:', error);
+    if (!projectUrl) return;
+
+    try {
+        const urlParts = projectUrl.split('/');
+        if (urlParts.length < 5) return;
+
+        const owner = urlParts[3];
+        const repo = urlParts[4];
+        
+        let repoInfo;
+        if (projectUrl.includes('gitlab.com')) {
+            repoInfo = await fetchGitLabRepoInfo(owner, repo);
+        } else if (projectUrl.includes('github.com')) {
+            repoInfo = await fetchGitHubRepoInfo(owner, repo);
+        } else {
+            console.warn('Unsupported repository platform');
+            return;
         }
 
-        try {
-            const urlParts = projectUrl.split('/');
-            if (urlParts.length >= 5) {
-                const owner = urlParts[3];
-                const repo = urlParts[4];
-                const description = await fetchRepoDescription(owner, repo);
-                if (description) {
-                    descriptionInput.value = description;
-                }
-            }
-        } catch (error) {
-            console.error('Error updating language:', error);
+        // Update form fields with fetched information
+        if (repoInfo.language) {
+            languageInput.value = repoInfo.language;
         }
+        if (repoInfo.description) {
+            descriptionInput.value = repoInfo.description;
+        }
+    } catch (error) {
+        console.error('Error updating repository information:', error);
     }
 }

@@ -113,7 +113,7 @@ export async function createProjectCard(project) {
             const owner = urlParts[3];
             const repo = urlParts[4];
             
-            repoDetails = await fetchRepoDetails(owner, repo);
+            repoDetails = await fetchRepoDetails(owner, repo, project.repository);
         } catch (error) {
             console.error('Error fetching repo details:', error);
         }
@@ -263,7 +263,7 @@ export async function handleAddNewProject() {
         const urlParts = projectUrl.split('/');
         const owner = urlParts[3];
         const repoName = urlParts[4];
-        const repoDetails = await fetchRepoDetails(owner, repoName);
+        const repoDetails = await fetchRepoDetails(owner, repoName, projectUrl);
 
         // Check if the user is in the contributors list
         const isContributor = repoDetails.contributors.some(
