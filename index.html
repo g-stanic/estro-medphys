@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Source Software Registry</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/search.css">
+    <link rel="stylesheet" href="styles/projects.css">
+    <link rel="stylesheet" href="styles/auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon/favicon-16x16.png">
+    <link rel="manifest" href="images/favicon/site.webmanifest">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Open Source Software Registry</h1>
+        </div>
+    </header>
+    <div class="search-container">
+        <input type="text" placeholder="Search projects...">
+        <button type="submit"><i class="fas fa-search"></i></button>
+    </div>
+    <main>
+        <div class="add-project-container">
+            <div class="status-message" id="addProjectStatus"></div>
+            <button id="addProjectButton">Add Project</button>
+        </div>
+        <div id="projects-container">
+        </div>
+    </main>
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p>Contact: Goran Stanic • <a href="mailto:goran.stanic@dkfz-heidelberg.de">goran.stanic@dkfz-heidelberg.de</a> • <a href="https://github.com/g-stanic" target="_blank">GitHub</a></p>
+        </div>
+    </footer>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

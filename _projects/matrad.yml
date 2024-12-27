@@ -1,0 +1,13 @@
+---
+name: matRad
+
+description: An open source multi-modality radiation treatment planning sytem developed by e0404 @ DKFZ
+repository: https://github.com/e0404/matRad
+language: MATLAB
+
+tags: ["medical-physics","radiation-therapy"]
+license: GPL-3.0
+logo: assets/logos/matrad-logo.png
+submitted_by: ["g-stanic"]
+added_date: 2024-11-12
+---

@@ -1,0 +1,11 @@
+---
+name: React
+description: A declarative, efficient, and flexible JavaScript library for building user interfaces.
+repository: https://github.com/facebook/react
+website: 
+tags: ["javascript","ui-library"]
+license: MIT
+maintainers: ["facebook"]
+logo: assets/logos/react-logo.png
+added_date: 2024-10-31
+---

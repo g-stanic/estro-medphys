@@ -1,0 +1,13 @@
+---
+name: Whisper
+owner: openai
+repo: whisper
+description: Robust Speech Recognition via Large-Scale Weak Supervision
+repository: https://github.com/openai/whisper
+website: 
+tags: ["medical-physics"]
+license: MIT
+maintainers: ["openai"]
+added_date: 2024-10-29
+logo: 'assets/logos/whisper-logo.png'
+---

@@ -1,0 +1,11 @@
+---
+name: LLaMA
+description: Large Language Model Meta AI
+repository: https://github.com/meta-llama/llama3
+website: 
+tags: ["artificial-intelligence","machine-learning"]
+license: MIT
+maintainers: ["meta"]
+logo: assets/logos/llama-logo.png
+added_date: 2024-10-31
+---

@@ -1,0 +1,149 @@
+/* Project Card Layout and Structure */
+.project-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.project-card h2 {
+    margin-top: 0;
+}
+
+.project-card p {
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 4.5em; /* 3 lines × 1.5 line height */
+}
+
+/* Project Grid Container */
+#projects-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.project-card {
+    flex-basis: 23%;
+    margin: 1%;
+    /* margin-bottom: 1.5rem; */
+    box-sizing: border-box;
+    /* max-width: calc(25% - 1rem); */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    padding-bottom: 3.5rem;
+}
+
+.view-project {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    color: #0366d6;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.view-project:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Layout Breakpoints */
+@media (max-width: 768px) {
+    .project-card {
+        flex-basis: calc(50% - 1rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .project-card {
+        flex-basis: 100%;
+    }
+}
+
+/* Project Logo Styling */
+.project-logo-container {
+    width: 100%;
+    max-width: 250px;
+    height: 250px;
+    aspect-ratio: 1;
+    padding: 0.5rem;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.project-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+.project-logo[src$="default-logo.png"] {
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+/* Project Status Indicators */
+.project-indicators {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.project-indicators i {
+    font-size: 1rem;
+    color: #0366d6;
+    opacity: 0.7;
+}
+
+.project-indicators i:hover {
+    opacity: 1;
+}
+
+.project-indicators i.inactive {
+    opacity: 0.3;
+    color: #586069;
+}
+
+.project-indicators i.active {
+    opacity: 1;
+    color: #2ea44f;
+}
+
+.project-indicators i.license-indicator.active {
+    color: #fb8f44;  /* Pale orange color */
+    opacity: 1;
+}
+
+.project-indicators i.license-indicator.inactive {
+    opacity: 0.3;
+    color: #586069;
+}
+
+.project-indicators i.release-indicator.active {
+    color: #0366d6;
+}
