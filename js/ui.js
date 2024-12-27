@@ -7,7 +7,7 @@ import { getOctokit } from './proj.js';
 // It will also allow the person who added the project to edit the project information.
 
 export function addLoginButton() {
-    const header = document.querySelector('header');
+    const headerContainer = document.querySelector('.header-container');
     const loginButton = document.createElement('button');
     loginButton.id = 'loginButton';
     loginButton.className = 'login-button';
@@ -31,7 +31,7 @@ export function addLoginButton() {
         }
     });
 
-    header.appendChild(loginButton);
+    headerContainer.appendChild(loginButton);
 }
 
 export function updateLoginButtonState(button) {

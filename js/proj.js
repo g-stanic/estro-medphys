@@ -156,16 +156,44 @@ export async function createProjectCard(project) {
 }
 
 export async function displayProjects(forceRefresh = false) {
-    // Show loading indicator
-    const loadingIndicator = document.getElementById('loading-indicator');
+    // Create and show loading curtain
+    const curtain = document.createElement('div');
+    curtain.className = 'loading-curtain';
+    curtain.innerHTML = `
+        <div class="loading-content">
+            <div class="loading-text">Waiting for a response from ESTRO ...</div>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(curtain);
+
+    // Add skeleton cards
     const projectsContainer = document.getElementById('projects-container');
-    
-    // Show only loading indicator inside container
-    projectsContainer.innerHTML = '';
-    projectsContainer.appendChild(loadingIndicator);
-    loadingIndicator.classList.add('loading');
+    projectsContainer.innerHTML = Array(4).fill(0).map(() => `
+        <div class="skeleton-card">
+            <div class="skeleton skeleton-logo"></div>
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-description"></div>
+            <div class="skeleton-indicators">
+                <div class="skeleton skeleton-indicator"></div>
+            </div>
+            <div class="skeleton skeleton-github-link"></div>
+        </div>
+    `).join('');
 
     try {
+        // Get the progress bar element
+        const progressBar = curtain.querySelector('.progress');
+        
+        // Add transition style and start progress animation
+        progressBar.style.transition = 'width 1.5s ease-in-out';
+        setTimeout(() => {
+            progressBar.style.width = '80%';
+        }, 100);
+
+        // Fetch projects
         projects = await fetchProjects(forceRefresh);
         
         // Create all project cards asynchronously
@@ -173,15 +201,25 @@ export async function displayProjects(forceRefresh = false) {
             projects.map(project => createProjectCard(project))
         );
         
-        // Remove loading indicator and add cards
-        loadingIndicator.remove();
+        // Update transition for final progress (90-100%)
+        progressBar.style.transition = 'width 1s ease-in-out';
+        progressBar.style.width = '100%';
+        
+        // Wait for progress bar animation to complete
+        await new Promise(resolve => setTimeout(resolve, 1300));
+        
+        // Remove the curtain
+        curtain.remove();
+        
+        // Clear container and add real cards
+        projectsContainer.innerHTML = '';
         projectCards.forEach(card => {
             projectsContainer.appendChild(card);
         });
 
     } catch (error) {
-        // Show error message in container
-        loadingIndicator.remove();
+        // In case of error, remove curtain and show error message
+        curtain.remove();
         projectsContainer.innerHTML = `<p>Error loading projects: ${error.message}</p>`;
     }
 }
