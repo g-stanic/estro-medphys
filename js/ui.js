@@ -1,6 +1,7 @@
 import { isUserAuthenticated, authenticateWithGitHub, getCurrentGitHubUser } from './auth.js';
 import { handleAddNewProject } from './proj.js';
 import { getOctokit } from './proj.js';
+import { fetchZenodoDOI } from './api.js';
 
 // We should add a button that allows to open a project in a new overlay or window
 // that will show all the information about the project.
@@ -90,6 +91,7 @@ export function createOverlay() {
                 <!-- Add more options as needed -->
             </select>
             <input type="text" id="projectLicense" placeholder="Project license">
+            <input type="text" id="projectDOI" placeholder="DOI">
             <input type="text" id="projectStatus" placeholder="Development status">
 
             <h3>Section 2: Funding information</h3>
@@ -293,6 +295,7 @@ async function handleProjectUrlChange() {
     const languageInput = document.getElementById('projectLanguage');
     const descriptionInput = document.getElementById('projectDescription');
     const licenseInput = document.getElementById('projectLicense');
+    const doiInput = document.getElementById('projectDOI');
     
     if (!projectUrl) return;
 
@@ -308,6 +311,14 @@ async function handleProjectUrlChange() {
             repoInfo = await fetchGitLabRepoInfo(owner, repo);
         } else if (projectUrl.includes('github.com')) {
             repoInfo = await fetchGitHubRepoInfo(owner, repo);
+            
+            // Fetch Zenodo DOI
+            const zenodoDOI = await fetchZenodoDOI(repo, projectUrl);
+            if (zenodoDOI) {
+                doiInput.value = zenodoDOI;
+            } else {
+                doiInput.value = '';
+            }
         } else {
             console.warn('Unsupported repository platform');
             return;

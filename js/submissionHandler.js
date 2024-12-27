@@ -19,6 +19,7 @@ ${formData.website ? `website: ${formData.website}` : ''}
 ${formData.tags && formData.tags.length > 0 ? `tags: ${JSON.stringify(formData.tags)}` : ''}
 ${formData.license ? `license: ${formData.license}` : ''}
 ${formData.logo ? `logo: ${formData.logo}` : ''}
+${formData.doi ? `doi: ${formData.doi}` : ''}
 ${formData.submitted_by ? `submitted_by: ${JSON.stringify(formData.submitted_by)}` : ''}
 added_date: ${new Date().toISOString().split('T')[0]}
 ---`;

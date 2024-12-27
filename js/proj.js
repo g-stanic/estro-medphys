@@ -234,10 +234,10 @@ export async function handleAddNewProject() {
 
     clearFieldErrors();
 
+    const projectUrl = document.getElementById('projectUrl').value.trim();
     const projectName = document.getElementById('projectName').value.trim();
     const projectAbbreviation = document.getElementById('projectAbbreviation').value.trim();
     const projectDescription = document.getElementById('projectDescription').value.trim();
-    const projectUrl = document.getElementById('projectUrl').value.trim();
 
     // Check if project already exists
     const exists = await checkProjectExists(projectUrl);
