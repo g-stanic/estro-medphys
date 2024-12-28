@@ -7,7 +7,7 @@
    Base Layout Styles
    Sets up the fundamental page structure and typography
    ========================================================================== */
-body {
+   body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
