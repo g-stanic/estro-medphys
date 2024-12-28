@@ -68,46 +68,73 @@ export function createOverlay() {
             
             <h3>Section 1: Project</h3>
             <div class="input-wrapper">
-                <div class="input-container">
-                    <span class="required-star" style="color: red;">*</span>
-                    <input type="url" id="projectUrl" placeholder="Project URL">
-                </div>
+                <label for="projectUrl">Project URL:<span class="required-star" style="color: red;">*</span></label>
+                <input type="url" id="projectUrl">
             </div>
             <div class="input-wrapper">
-                <div class="input-container">
-                    <span class="required-star" style="color: red;">*</span>
-                    <input type="text" id="projectName" placeholder="Full project name">
-                </div>
+                <label for="projectName">Full Project Name:<span class="required-star" style="color: red;">*</span></label>
+                <input type="text" id="projectName">
             </div>
-            <input type="text" id="projectAbbreviation" placeholder="Project abbreviation">
-            <textarea id="projectDescription" placeholder="Project description"></textarea>
-            <input type="text" id="projectLanguage" placeholder="Project language">
-            <select id="projectKeywords" multiple>
-                <option value="medical-physics">Medical Physics</option>
-                <option value="radiation-therapy">Radiation Therapy</option>
-                <option value="imaging">Imaging</option>
-                <option value="dosimetry">Dosimetry</option>
-                <option value="quality-assurance">Quality Assurance</option>
-                <!-- Add more options as needed -->
-            </select>
-            <input type="text" id="projectLicense" placeholder="Project license">
-            <input type="text" id="projectDOI" placeholder="DOI">
-            <input type="text" id="projectStatus" placeholder="Development status">
+            <div class="input-wrapper">
+                <label for="projectAbbreviation">Project Abbreviation:</label>
+                <input type="text" id="projectAbbreviation">
+            </div>
+            <div class="input-wrapper">
+                <label for="projectDescription">Project Description:</label>
+                <textarea id="projectDescription"></textarea>
+            </div>
+            <div class="input-wrapper">
+                <label for="projectLanguage">Project Language:</label>
+                <input type="text" id="projectLanguage">
+            </div>
+            <div class="input-wrapper">
+                <label for="projectKeywords">Keywords:</label>
+                <select id="projectKeywords" multiple>
+                    <option value="medical-physics">Medical Physics</option>
+                    <option value="radiation-therapy">Radiation Therapy</option>
+                    <option value="imaging">Imaging</option>
+                    <option value="dosimetry">Dosimetry</option>
+                    <option value="quality-assurance">Quality Assurance</option>
+                </select>
+            </div>
+            <div class="input-wrapper">
+                <label for="projectLicense">Project License:</label>
+                <input type="text" id="projectLicense">
+            </div>
+            <div class="input-wrapper">
+                <label for="projectDOI">DOI:</label>
+                <input type="text" id="projectDOI">
+            </div>
+            <div class="input-wrapper">
+                <label for="projectStatus">Development Status:</label>
+                <input type="text" id="projectStatus">
+            </div>
 
             <h3>Section 2: Funding information</h3>
-            <input type="text" id="fundingInfo" placeholder="Funding information">
+            <div class="input-wrapper">
+                <label for="fundingInfo">Funding Information:</label>
+                <input type="text" id="fundingInfo">
+            </div>
             
             <h3>Section 3: Upload project logo</h3>
-            <input type="file" id="projectLogo" accept="image/*">
+            <div class="input-wrapper">
+                <label for="projectLogo">Project Logo:</label>
+                <input type="file" id="projectLogo" accept="image/*">
+            </div>
             
             <h3>Section 4: Submitter</h3>
-            <input type="text" id="First and last name" placeholder="First and last name">
             <div class="input-wrapper">
-                <div class="input-container">   
-                    <span class="required-star" style="color: red;">*</span>
-                    <input type="text" id="githubUsername" placeholder="GitHub Username">
+                <label for="githubUsername">GitHub Username:<span class="required-star" style="color: red;">*</span></label>
+                <input type="text" id="githubUsername">
             </div>
-            <input type="text" id="orcidId" placeholder="ORCID ID (if applicable)">
+            <div class="input-wrapper">
+                <label for="submitterName">First and Last Name:</label>
+                <input type="text" id="submitterName">
+            </div>
+            <div class="input-wrapper">
+                <label for="orcidId">ORCID ID (if applicable):</label>
+                <input type="text" id="orcidId">
+            </div>
             
             <button id="submitRepo">Add Project</button>
             <p id="repoStatus"></p>
