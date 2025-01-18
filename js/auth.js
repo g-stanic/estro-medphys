@@ -9,7 +9,7 @@ export async function authenticateWithGitHub() {
     const response = await fetch(`${PROXY_URL}/client-id`);
     const data = await response.json();
     const GITHUB_CLIENT_ID = data.clientId;
-    const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=read:user repo`;  // Added 'repo' scope
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=read:user public_repo`;  // Added 'repo' scope
     window.open(authUrl, 'GitHub Authentication', 'width=600,height=600');
 }
 
