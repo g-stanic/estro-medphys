@@ -416,6 +416,7 @@ function clearFieldErrors() {
 export async function openProjectDetails(project, repoDetails) {
     // Hide existing elements
     document.querySelector('.search-container').style.display = 'none';
+    document.querySelector('.filters-container').style.display = 'none';
     document.querySelector('.add-project-container').style.display = 'none';
     document.getElementById('projects-container').style.display = 'none';
     document.getElementById('loginButton').style.display = 'none';
@@ -426,6 +427,7 @@ export async function openProjectDetails(project, repoDetails) {
     backButton.className = 'back-button';
     backButton.onclick = () => {
         document.querySelector('.search-container').style.display = 'flex';
+        document.querySelector('.filters-container').style.display = 'flex';
         document.querySelector('.add-project-container').style.display = 'flex';
         document.getElementById('projects-container').style.display = 'flex';
         document.getElementById('loginButton').style.display = 'block';
