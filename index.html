@@ -22,8 +22,25 @@
         </div>
     </header>
     <div class="search-container">
-        <input type="text" placeholder="Search projects...">
-        <button type="submit"><i class="fas fa-search"></i></button>
+        <input type="text" id="searchInput" placeholder="Search projects..." aria-label="Search projects">
+        <button type="submit" id="searchButton"><i class="fas fa-search"></i></button>
+    </div>
+    <div class="filters-container">
+        <div class="filter-group">
+            <label for="languageFilter">Programming Language:</label>
+            <select id="languageFilter" multiple>
+                <!-- Will be populated dynamically -->
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="tagFilter">Tags:</label>
+            <select id="tagFilter" multiple>
+                <!-- Will be populated dynamically -->
+            </select>
+        </div>
+        <button id="clearFilters" class="clear-filters-btn">
+            <i class="fas fa-times"></i> Clear Filters
+        </button>
     </div>
     <main>
         <div class="add-project-container">
