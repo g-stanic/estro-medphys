@@ -7,12 +7,13 @@ import { getUserGitHubToken, getGitHubToken, getCurrentGitHubUser } from './auth
 import { GitHubSubmissionHandler } from './submissionHandler.js';
 import { clearAddProjectForm, createOverlay} from './ui.js';
 
-let projects = [];
-let projectsCache = {
+export let projectsCache = {
     data: null,
     lastFetched: null,
     cacheExpiry: 5 * 60 * 1000 // 5 minutes in milliseconds
 };
+
+let projects = [];
 
 // Initialize Octokit asynchronously
 async function initializeOctokit() {
@@ -31,7 +32,7 @@ export async function getOctokit() {
     return octokit;
 }
 
-async function fetchProjects(forceRefresh = false) {
+export async function fetchProjects(forceRefresh = false) {
     // Return cached data if available and not expired
     if (!forceRefresh && 
         projectsCache.data && 
@@ -76,11 +77,30 @@ async function fetchProjects(forceRefresh = false) {
             
             // Parse YAML content
             const projectData = jsyaml.load(cleanContent);
-            
-            return {
-                ...projectData,
-                id: file.name.replace('.yml', '')
-            };
+
+            try {
+                // Extract owner and repo from repository URL
+                const urlParts = projectData.repository.split('/');
+                const owner = urlParts[3];
+                const repo = urlParts[4];
+
+                // Only fetch repo details if we have valid owner and repo
+                if (owner && repo) {
+                    const repoDetails = await fetchRepoDetails(owner, repo, projectData.repository);
+                    return {
+                        ...projectData,
+                        repoDetails,
+                        id: file.name.replace('.yml', '')
+                    };
+                }
+            } catch (error) {
+                console.warn(`Failed to fetch repo details for ${projectData.name}:`, error);
+                // Return project data without repo details if fetch fails
+                return {
+                    ...projectData,
+                    id: file.name.replace('.yml', '')
+                };
+            }
         });
 
         // Update cache with new data
@@ -109,11 +129,15 @@ export async function createProjectCard(project) {
     
     if (project.repository) {
         try {
-            const urlParts = project.repository.split('/');
-            const owner = urlParts[3];
-            const repo = urlParts[4];
-            
-            repoDetails = await fetchRepoDetails(owner, repo, project.repository);
+            if (project.repoDetails) {
+                repoDetails = project.repoDetails;
+            } else {
+                const urlParts = project.repository.split('/');
+                const owner = urlParts[3];
+                const repo = urlParts[4];
+                
+                repoDetails = await fetchRepoDetails(owner, repo, project.repository);
+            }
         } catch (error) {
             console.error('Error fetching repo details:', error);
         }

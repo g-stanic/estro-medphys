@@ -3,9 +3,10 @@
  * This script sets up event listeners and manages the UI state based on user actions.
  */
 
-import { displayProjects } from './proj.js';
+import { displayProjects, fetchProjects } from './proj.js';
 import { addLoginButton, showOverlay, updateLoginButtonState } from './ui.js';
 import { handleAuthCode } from './auth.js';
+import { populateFilters, setupSearchListeners } from './search.js';
 
 /**
  * Initializes the application by setting up the login button and displaying projects.
@@ -23,6 +24,13 @@ async function initializeApp() {
     if (addProjectButton) {
         addProjectButton.addEventListener('click', showOverlay);
     }
+
+    // Initialize search functionality
+    const projects = await fetchProjects();
+    populateFilters(projects);
+    
+    // Add search event listeners
+    setupSearchListeners();
 }
 
 // Event listener for when the DOM content is fully loaded
