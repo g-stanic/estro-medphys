@@ -145,6 +145,7 @@ export function createOverlay() {
     const closeBtn = overlay.querySelector('.close-btn');
     closeBtn.addEventListener('click', () => {
         overlay.style.display = 'none';
+        clearAddProjectForm();
     });
 
     document.getElementById('projectUrl').addEventListener('change', handleProjectUrlChange);
@@ -157,7 +158,7 @@ function isProduction() {
     return window.location.hostname === 'g-stanic.github.io';
 }
 
-export async function showOverlay() {
+export async function showOverlay(platform = 'repository') {
     // Check authentication before showing overlay
     if (!isUserAuthenticated()) {
         const statusMessage = document.getElementById('addProjectStatus');
@@ -172,8 +173,8 @@ export async function showOverlay() {
     }
     overlay.style.display = 'block';
 
-    // Only auto-fill and lock GitHub username in production
-    if (isProduction()) {
+    // Only auto-fill and lock GitHub username in production and for repository platforms
+    if (isProduction() && platform === 'repository') {
         const currentUser = await getCurrentGitHubUser();
         const githubUsernameInput = document.getElementById('githubUsername');
         if (currentUser && githubUsernameInput) {
@@ -182,6 +183,14 @@ export async function showOverlay() {
             githubUsernameInput.style.backgroundColor = '#f0f0f0';
             githubUsernameInput.style.cursor = 'not-allowed';
         }
+    }
+
+    // Disable URL change handler for websites
+    const projectUrlInput = document.getElementById('projectUrl');
+    if (platform === 'website') {
+        projectUrlInput.removeEventListener('change', handleProjectUrlChange);
+    } else {
+        projectUrlInput.addEventListener('change', handleProjectUrlChange);
     }
 
     const statusMessage = document.getElementById('addProjectStatus');
@@ -195,6 +204,7 @@ export async function showOverlay() {
     const closeBtn = overlay.querySelector('.close-btn');
     closeBtn.addEventListener('click', () => {
         overlay.style.display = 'none';
+        clearAddProjectForm();
     });
 }
 
@@ -371,4 +381,44 @@ async function handleProjectUrlChange() {
     } catch (error) {
         console.error('Error updating repository information:', error);
     }
+}
+
+export function showPlatformSelector() {
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    overlay.innerHTML = `
+        <div class="popup platform-selector">
+            <span class="close-btn">&times;</span>
+            <h2>Choose the hosting platform</h2>
+            <div class="platform-buttons">
+                <button id="repoButton" class="platform-btn">
+                    <i class="fab fa-github"></i> Github/Gitlab/Bitbucket
+                </button>
+                <button id="websiteButton" class="platform-btn">
+                    <i class="fas fa-globe"></i> Website
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    overlay.style.display = 'block';
+
+    // Add event listeners
+    const closeBtn = overlay.querySelector('.close-btn');
+    closeBtn.addEventListener('click', () => {
+        overlay.remove();
+    });
+
+    const repoButton = overlay.querySelector('#repoButton');
+    repoButton.addEventListener('click', () => {
+        overlay.remove();
+        showOverlay('repository');
+    });
+
+    const websiteButton = overlay.querySelector('#websiteButton');
+    websiteButton.addEventListener('click', () => {
+        overlay.remove();
+        showOverlay('website');
+    });
 }

@@ -4,7 +4,7 @@
  */
 
 import { displayProjects, fetchProjects } from './proj.js';
-import { addLoginButton, showOverlay, updateLoginButtonState } from './ui.js';
+import { addLoginButton, showOverlay, updateLoginButtonState, showPlatformSelector } from './ui.js';
 import { handleAuthCode } from './auth.js';
 import { populateFilters, setupSearchListeners } from './search.js';
 
@@ -22,7 +22,7 @@ async function initializeApp() {
     // Set up the event listener for the "Add Project" button
     const addProjectButton = document.getElementById('addProjectButton');
     if (addProjectButton) {
-        addProjectButton.addEventListener('click', showOverlay);
+        addProjectButton.addEventListener('click', showPlatformSelector);
     }
 
     // Initialize search functionality

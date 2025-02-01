@@ -530,3 +530,39 @@ main {
     display: flex;
     flex-direction: column;
 }
+
+/* Platform Selector Styles */
+.platform-selector {
+    text-align: center;
+    max-width: 400px !important;
+}
+
+.platform-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.platform-btn {
+    padding: 15px 20px;
+    font-size: 16px;
+    background-color: #FC814A;
+    color: #01172F;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.platform-btn:hover {
+    background-color: #cc6639;
+}
+
+.platform-btn i {
+    font-size: 20px;
+}
