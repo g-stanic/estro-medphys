@@ -566,3 +566,34 @@ main {
 .platform-btn i {
     font-size: 20px;
 }
+
+/* Styles for the info icon (i) that appears next to form fields
+   Used to provide additional context and help text to users */
+
+.info-icon {
+    color: #63768D;
+
+    margin-left: 5px;
+    cursor: help;
+    font-size: 14px;
+}
+
+.info-icon:hover {
+    color: #4a5a6d;
+}
+
+/* Style for the tooltip that appears on hover */
+[title] {
+    position: relative;
+    cursor: help;
+}
+
+[title]:hover::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+}

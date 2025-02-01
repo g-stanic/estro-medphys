@@ -102,7 +102,11 @@ export function createOverlay() {
                 <input type="text" id="projectLicense">
             </div>
             <div class="input-wrapper">
-                <label for="projectDOI">DOI:</label>
+                <label for="projectDOI">
+                    DOI:
+                    <i class="fas fa-info-circle info-icon" 
+                       title="If you do not have a DOI consider registering your project on Zenodo"></i>
+                </label>
                 <input type="text" id="projectDOI">
             </div>
             <div class="input-wrapper">
